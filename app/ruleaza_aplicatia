@@ -1,2 +1,0 @@
-export FLASK_APP=site_distribuitor.py
-flask run -p 5010 --reload
