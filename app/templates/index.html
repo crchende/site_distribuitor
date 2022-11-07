@@ -1,7 +1,7 @@
 {% extends "bootstrap/base.html" %}
 
 {% block title %}
-    Distribuitor Ciocolata. Versiunea: app_v0.1
+    Distribuitor Ciocolata {% include 'versiune.html' %}
     {{ super () }}
 {% endblock title %}
 
@@ -30,15 +30,44 @@
         border: 3px solid;
         font-size: 18px;
         padding: 4px;
-    } 
+    }
+    
+    article {
+      float: left;
+      padding: 0px;
+      width: 70%;
+      /*background-color: #f1f1f1;*/
+      /*height: 300px; /* only for demonstration, should be removed */
+    }
+
+    /* Clear floats after the columns */
+    section::after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+
+    /* Style the footer */
+    footer {
+      background-color: #777;
+      padding: 10px;
+      text-align: center;
+      color: white;
+    }
+    
     </style>
 {% endblock head %}
+
+{% block scripts %}
+    {{ super() }}
+    {% include 'scripturi.html' %}
+{% endblock scripts %}
 
 
 {% block content %}
 <div id=content>
     {% if page == "distribuitor ciocolata" %}
-        <h1> {{page|title}} versiunea: app_v0.1</h1>
+        <h1> {{page|title}} {% include 'versiune.html' %}</h1>
         <pre>
             Aceasta versiune foloseste date statice - din fisierul date.py.
             Avem aici un dictionar, cu mai multe elemente:
@@ -53,30 +82,18 @@
                 - producator avem: {id, nume}
                 - produse avem:    {id, id_producator, nume}
                 ...
-                
+                                
         </pre>
+        {% include 'descriere_versiune.html' %}
+
     {% endif %}
     
-    {% if page == "comenzi producatori" %}
+    {% if page == "comenzi la producatori" %}
         <h2> {{page|title}} </h2>
     {% endif %}
 
     {% if page == "produse" %}
-        <h2> {{page|title}} </h2>
-        <table>
-            <tr style="background: cyan;">
-            {% for el in produse[0] %}
-                <th style="border: 1px solid; padding: 8px; font-size: 18px;">{{ el }}</th>
-            {% endfor %}
-            </tr>
-            {% for i in range(1, produse|length) %}
-            <tr>
-                {% for j in range(produse[i]|length) %}
-                   <td style="border: 1px solid; padding: 4px; font-size: 18px;">{{ produse[i][j] }}</td> 
-                {% endfor %}
-            </tr>        
-            {% endfor %}
-        </table>
+        {% include 'produse.html' %}
     {% endif %}
 
     {% if page == "producatori" %}
