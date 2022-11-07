@@ -29,4 +29,5 @@ def produse():
 def producatori():
     return render_template('index.html', page="producatori")
 
+# linie adaugata in branch-ul dev
     
