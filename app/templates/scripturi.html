@@ -1,0 +1,56 @@
+<script>
+$('body').on('focus', '[contenteditable]', function() {
+    const _this = $(this);
+    _this.data('before', _this.html());
+    //console.log($this.data('before'))
+    //'blur keyup paste input'
+    //Doar evenimentele blur, paste, keydown duc la transfer de date a server
+}).on('blur paste keydown', '[contenteditable]', function(event) {
+    //console.log("event.which:", event.which)
+    console.log("event", event)
+    //Vreau ca doar apasarea tastei ENTER sa transfere date la server
+    //Se trimit date si la click mouse in afara
+    if(event.type === "keydown" && event.which != 13) {
+        //console.log("Tastat tasta cu codul:", event.which)
+        return
+    } else {
+        console.log("Tastat ENTER. cod:", event.which)
+        event.preventDefault()
+    }
+    const _this = $(this);
+    //console.log("this.id:", $this.attr('id'))
+    if (_this.data('before') !== _this.html()) {
+        _this.data('before', _this.html());
+        _this.trigger('change');
+        console.log("Editare INLINE: id, val", _this.attr('id'), _this.html())
+        
+        fetch("modifica/produs", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: 'id=' + _this.attr('id') + "&valnoua=" +_this.html().trim(),
+        })
+        .then(response => {
+            console.log("response:", response)
+            return response.text()
+        })
+        .then(data => {
+            console.log("Rezultat modificare:", data);
+            _this.html(data);
+            console.log("_this.html():", _this.html());
+            return data
+        })
+        .catch(error => console.log(error));
+    }
+});
+
+/*
+    Varianta cu get - din jquery
+        $.get("modifica/produs", { id: _this.attr('id'), valnoua: _this.html() }, function(result) {
+            console.log("Rezultat modificare:", result)
+            _this.html();
+            console.log("_this.html():", _this.html())
+        });
+*/
+</script>

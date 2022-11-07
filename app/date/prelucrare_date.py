@@ -34,22 +34,39 @@ def gaseste_nume_producator_produs(id_produs):
 
   
 ###############################################################################    
-# definire functii care creaza view-uri
+# definire functii care pregatesc structurile de date pentru afisare in pagina
+# WEB
 ###############################################################################
-def afiseaza_produse():
-    global date_distribuitor
 
-    # initializare cu cap tabel
-    ret = [["ID", "Producator", "Produs"]] 
-    # va fi o lista de liste - fiecare element - un rand in tabel
+'''
+    genereaza_date_prodcatori
+
+    Descriere:
+    
+        Preia datele din tabelul / elementul 'produse' pentru a fi utilizate
+        pentru controale select sau alte controale.
+
+    Parametrii:
+        -
+    
+    Return:
+        O lista de liste care cuprinde toate datele din 'producatori'
+        Fiecare sublista contine:
+        id-ul din baza de date si numele producatorului.
+'''
+def genereaza_date_producatori():
+    global date_distribuitor
+    
+    ret = []
         
-    for el in date_distribuitor["produse"]:
-        nume_producator = gaseste_nume_producator(el["id_producator"])
-        ret.append([el["id"], nume_producator, el["nume"]])
+    for el in date_distribuitor['producatori']:
+        ret.append([el["id"], el["nume"]])
     
     return ret
+
+
     
-def afiseaza_continut_comenzi():
+def genereaza_tabel_continut_comenzi():
     global date_distribuitor
     
     print("\nAfisare comenzi - fara prelucrare, cu ID-uri")
