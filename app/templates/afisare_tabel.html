@@ -1,0 +1,44 @@
+<table>
+    <!-- Prima linie - capul de tabel -->
+    <tr style="background: cyan;">
+    {% for el in tabel[0] %}
+        <th style="border: 1px solid; padding: 4px; font-size: 18px;">{{ el }}</th>
+    {% endfor %}
+    {% if activare_stergere %}
+        <th style="border: 1px solid; padding: 4px; font-size: 18px;">Sterge</th>
+    {% endif %}
+    </tr>
+    
+    <!--Liniile tabelului-->
+    {% for i in range(1, tabel|length) %}
+    <tr>
+        <!-- prima coloana - ID - numar coloana generat local -->
+        <td style="border: 1px solid; padding: 4px; font-size: 18px;">{{i}}</td>
+        
+        <!-- Pe fiecare linie adaugam celulele -->
+        {% for j in range(1, tabel[i]|length -1) %}
+        <td style="border: 1px solid; padding: 4px; font-size: 18px;">{{tabel[i][j]}}</td> 
+        {% endfor %}
+        <!-- Ultima celula de pe linie, pe care o vrem editabila -->
+        
+        <td class="{{page}}"
+            {% if activare_editare %} 
+            contenteditable="true"
+            {% endif %}
+            style="border: 1px solid; padding: 4px; font-size: 18px;"
+            id={{tabel[i][0]}}>
+            {{tabel[i][tabel[i]|length -1]}}
+        </td>
+        
+        
+        <!-- celula 'Sterge' - extra -->
+        {% if activare_stergere %}
+        <td style="border: 1px solid; padding: 4px; font-size: 18px; text-align: center;">
+        <a href="/{{page}}?action=delete&id={{tabel[i][0]}}">
+            <img src="{{url_for('static', filename='imagini/edit-delete.png')}}">
+        </a>
+        </td>
+        {% endif %}
+    </tr>        
+    {% endfor %}    
+</table>

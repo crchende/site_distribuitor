@@ -89,7 +89,7 @@
     {% endif %}
     
     {% if page == "comenzi la producatori" %}
-        <h2> {{page|title}} </h2>
+        {% include 'continut_comenzi_producatori.html' %}
     {% endif %}
 
     {% if page == "produse" %}
@@ -97,7 +97,7 @@
     {% endif %}
 
     {% if page == "producatori" %}
-        <h2> {{page|title}} </h2>
+        {% include 'producatori.html' %}
     {% endif %}
 
     

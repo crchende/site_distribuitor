@@ -2,42 +2,13 @@
 
 <section>
     <article>
-        <table>
-            
-            <!-- Prima linie - capul de tabel -->
-            <tr style="background: cyan;">
-            {% for el in produse[0] %}
-                <th style="border: 1px solid; padding: 4px; font-size: 18px;">{{ el }}</th>
-            {% endfor %}
-                <th style="border: 1px solid; padding: 4px; font-size: 18px;">Sterge</th>
-            </tr>
-            
-            <!--Liniile tabelului-->
-            {% for i in range(1, produse|length) %}
-            <tr>
-                <!-- prima coloana - ID - numar coloana generat local -->
-                <td style="border: 1px solid; padding: 4px; font-size: 18px;">{{i}}</td>
-                
-                <!-- Pe fiecare linie adaugam celulele -->
-                {% for j in range(1, produse[i]|length -1) %}
-                <td style="border: 1px solid; padding: 4px; font-size: 18px;">{{produse[i][j]}}</td> 
-                {% endfor %}
-                <!-- Ultima celula cu date produs de pe linie o vrem editabila -->
-                <td contenteditable="true" 
-                    style="border: 1px solid; padding: 4px; font-size: 18px;"
-                    id={{produse[i][0]}}>
-                    {{produse[i][produse[i]|length -1]}}
-                </td>
-                
-                <!-- celula 'Sterge' - extra -->
-                <td style="border: 1px solid; padding: 4px; font-size: 18px; text-align: center;">
-                <a href="/produse?action=delete&id={{produse[i][0]}}">
-                    <img src="{{url_for('static', filename='imagini/edit-delete.png')}}">
-                </a>
-                </td>
-            </tr>        
-            {% endfor %}    
-        </table>
+    
+    {% set tabel = produse %}
+    {% set activare_stergere = 1%}
+    {% set activare_editare = 1 %}
+
+    {% include 'afisare_tabel.html' %}
+
     </article>
     <aside>
     <form name="form_adauga_produs" method="POST" action="/produse">
@@ -51,8 +22,8 @@
         {% endfor %}
     </select><br><br>
     <label for=nume_produs_nou>Produs</label><br>
-    <input type=text id=nume_produs_nou name=nume_produs_nou><br><br>
-    <input type=submit value="Adauga">
+    <input style="margin-top: 5px" type=text id=nume_produs_nou name=nume_produs_nou><br>
+    <input style="margin-top: 5px" type=submit value="Adauga">
     </form>
     </aside>
 </section>

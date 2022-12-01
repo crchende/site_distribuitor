@@ -1,16 +1,31 @@
-v0.2
+v0.3
 <pre>
 NOUTATI:
 ========
+Afisare tabele:
+ - prducatori
+ - comenzi la producatori
+
 Adaugare actiuni:
  Creere
  Read    (citire)
  Update  (modificare)
  Delete  (stergere)
  
- pentru tabelul produse.
+ si pentru tabelul producatori (in v0.2 era doar pentru produse).
+ 
+ Pentru tabelul cu continutul comenzilor la producatori nu sunt implementate
+ actiunile CRUD.
+ Va fi nevoie de o alta abordare aici. 
+ O comanda odata plasata, nu se mai poate modifica.
+ 
+ PROBLEME:
+ 
+ Programul are un 'bug': se poate sterge un producator pentru care avem produse.
+ Nu ar trebui sa fie posibil sa se stearga un producator cat timp sunt produse
+ de la acest producator.
  
 DE FACUT
 ========
-De adaugat aceleasi operatii pentru celelalte tabele.
+De adaugat cod sa nu se mai poata sterge un producator cat timp are produse.
 </pre>
