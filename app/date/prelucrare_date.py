@@ -38,45 +38,14 @@ def gaseste_nume_producator_produs(id_produs):
 # WEB
 ###############################################################################
 
-'''
-    genereaza_date_prodcatori
-
-    Descriere:
-    
-        Preia datele din tabelul / elementul 'produse' pentru a fi utilizate
-        pentru controale select sau alte controale.
-
-    Parametrii:
-        -
-    
-    Return:
-        O lista de liste care cuprinde toate datele din 'producatori'
-        Fiecare sublista contine:
-        id-ul din baza de date si numele producatorului.
-'''
-def genereaza_date_producatori():
+def genereaza_date_continut_comenzi_producator(cu_cap_tabel = 1):
     global date_distribuitor
     
-    ret = []
+    ret = [["ID", "Producator", "Produs", "Cantitate"]]
         
-    for el in date_distribuitor['producatori']:
-        ret.append([el["id"], el["nume"]])
-    
-    return ret
-
-
-    
-def genereaza_tabel_continut_comenzi():
-    global date_distribuitor
-    
-    print("\nAfisare comenzi - fara prelucrare, cu ID-uri")
-    for el in date_distribuitor["continut_comenzi_la_producatori"]:
-        print(el)
-    
-    print("\nAfisare comenzi cu nume producator si nume produs, nu ID-uri")
     for el in date_distribuitor["continut_comenzi_la_producatori"]:
         n_ps = gaseste_nume_produs(el["id_produs"])
         n_pr = gaseste_nume_producator_produs(el["id_produs"])
-        print("comanda:", el["id_comanda"], "de la:", n_pr, "produs:", n_ps, \
-            "cantitate:", el["cantitate"])
+        ret.append([el["id_comanda"], n_pr, n_ps, el["cantitate"]])
 
+    return ret

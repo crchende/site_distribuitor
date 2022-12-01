@@ -32,33 +32,31 @@ class Produse:
         
         return ret
         
-    def adauga_produs_nou(self):
+    def adauga(self):
         global date_distribuitor
         
         #E OK acum doar aceasta verificare sa fiu sigur ca adaug 
         #de fapt, ca am un formular
-        if len(request.form) == 0:
-            return
-        else:
-            print("request.form:", request.form)
-            print("DBG: Dorim sa adaugam produsul:", 
-                request.form["nume_produs_nou"], \
-                "de la producatorul cu ID:", \
-                request.form["id_producator"],)
+
+        print("request.form:", request.form)
+        print("DBG: Dorim sa adaugam produsul:", 
+            request.form["nume_produs_nou"], \
+            "de la producatorul cu ID:", \
+            request.form["id_producator"],)
+        
+        max_id = max([el["id"] for el in date_distribuitor["produse"]])
+        id_nou = max_id + 1
+        
+        date_distribuitor["produse"].append(\
+            {\
+                "id": id_nou,\
+                "id_producator": int(request.values["id_producator"]),\
+                "nume": request.values["nume_produs_nou"]\
+            })
             
-            max_id = max([el["id"] for el in date_distribuitor["produse"]])
-            id_nou = max_id + 1
-            
-            date_distribuitor["produse"].append(\
-                {\
-                    "id": id_nou,\
-                    "id_producator": int(request.values["id_producator"]),\
-                    "nume": request.values["nume_produs_nou"]\
-                })
-                
-            #print("DBG:", date_distribuitor["produse"])
+        #print("DBG:", date_distribuitor["produse"])
           
-    def modifica_produs(self, id_prod, nume_nou):
+    def modifica(self, id_prod, nume_nou):
         global date_distribuitor
         ret = "-"
         
@@ -74,29 +72,23 @@ class Produse:
         return ret
         
          
-            
-    def sterge_produs(self):
+    def sterge(self):
         global date_distribuitor
         print("DBG: sterge - request.values", request.values)
         
-        print("action" in request.values)
+        id_prod = int(request.values["id"])
+        #print("DBG: id_prod de sters:", id_prod)
         
-        if len(request.values) == 0 or ("action" in request.values) == False:
-            return
-        else:
-            id_prod = int(request.values["id"])
-            #print("DBG: id_prod de sters:", id_prod)
-            
-            #print(date_distribuitor["produse"])
-            prod = date_distribuitor["produse"]
-            print(prod)
-            
-            # ar trebui sa obtinem o lista cu un singur element
-            lst_index = [prod.index(el) for el in prod if el["id"] == id_prod]
-            
-            #print("Index-ul de sters:", lst_index) 
-               
-            index = int(lst_index[0])
-            
-            date_distribuitor["produse"].pop(index)
+        #print(date_distribuitor["produse"])
+        prod = date_distribuitor["produse"]
+        print(prod)
         
+        # ar trebui sa obtinem o lista cu un singur element
+        lst_index = [prod.index(el) for el in prod if el["id"] == id_prod]
+        
+        #print("Index-ul de sters:", lst_index) 
+           
+        index = int(lst_index[0])
+        
+        date_distribuitor["produse"].pop(index)
+    
