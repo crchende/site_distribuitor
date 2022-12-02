@@ -1,7 +1,32 @@
-from app.date.date import date_distribuitor
-from app.date.prelucrare_date import gaseste_nume_producator
 from flask import request
 
+from flask_wtf import FlaskForm
+from wtforms import Form, StringField, SelectField, SubmitField
+from wtforms.validators import DataRequired, ValidationError
+
+from app.date.mysqldb import selecteaza, insereaza, sterge, modifica
+
+
+# TBD - adaugarea mesajelor personalizate la verificare nu functioneaza ca mai 
+# jos. 
+# 
+# Validarea extra 'validate'_'in_production' se va aplica pentru
+# campul 'in_production' dupa celelalte validari date la creerea componentei.
+# 
+class FormProduse(FlaskForm):
+    nume_produs_nou = StringField("Produs nou:", \
+        [DataRequired(message="Dati numele produsului")])
+    id_producator = SelectField("Producator", \
+        [DataRequired(message="Selectati numele producatorului")])
+    submit = SubmitField("Adauga")
+    
+    #def validate_id_producator(form, nume_produs_nou):
+    #    raise ValidationError("AICI")
+    '''
+    def hidden_tag(self):
+        super()    
+    '''
+    
 class Produse:
 
     '''
@@ -20,75 +45,61 @@ class Produse:
     
     '''
     def genereaza_date_produse(self, cu_cap_tabel=1):
-        global date_distribuitor
-
         # initializare cu cap tabel
         ret = [["ID", "Producator", "Produs"]] 
         # va fi o lista de liste - fiecare element - un rand in tabel
         
-        for el in date_distribuitor["produse"]:
-            nume_producator = gaseste_nume_producator(el["id_producator"])
-            ret.append([el["id"], nume_producator, el["nume"]])
+        q = "SELECT produse.id, producatori.nume, produse.nume \
+            FROM producatori, produse \
+            WHERE produse.id_producator = producatori.id;"
+        date = selecteaza(q)
         
+        for (id_prds, nume_prodr, nume_prods) in date:
+            print("DBG: ", id_prds, nume_prodr, nume_prods)
+            ret.append((id_prds, nume_prodr, nume_prods))
+            
         return ret
         
-    def adauga(self):
-        global date_distribuitor
+    def adauga(self, id_producator, nume_produs_nou):       
+        q = "INSERT INTO `site_distribuitor`.`produse` (`id_producator`, `nume`) VALUES (%s, %s);"
         
-        #E OK acum doar aceasta verificare sa fiu sigur ca adaug 
-        #de fapt, ca am un formular
-
-        print("request.form:", request.form)
-        print("DBG: Dorim sa adaugam produsul:", 
-            request.form["nume_produs_nou"], \
-            "de la producatorul cu ID:", \
-            request.form["id_producator"],)
+        rez_insert = insereaza(q, id_producator, nume_produs_nou) 
+        if rez_insert == []:
+            ret = f"id producator: {id_producator}, nume produs: {nume_produs_nou}"
+        else:
+            ret = rez_insert
         
-        max_id = max([el["id"] for el in date_distribuitor["produse"]])
-        id_nou = max_id + 1
-        
-        date_distribuitor["produse"].append(\
-            {\
-                "id": id_nou,\
-                "id_producator": int(request.values["id_producator"]),\
-                "nume": request.values["nume_produs_nou"]\
-            })
-            
-        #print("DBG:", date_distribuitor["produse"])
+        return ret
           
     def modifica(self, id_prod, nume_nou):
-        global date_distribuitor
         ret = "-"
         
         print("DBG: modificare denumire produs cu ID:", id_prod, "la: ", nume_nou)
-        prod = date_distribuitor["produse"]
-        lst_index = [prod.index(el) for el in prod if el["id"] == int(id_prod)]
-        print("lst_index", lst_index)
-        index = int(lst_index[0])
         
-        prod[index]["nume"] = nume_nou
-        ret = prod[index]["nume"]
+        q = "UPDATE `site_distribuitor`.`produse` SET `nume` = '" + \
+            nume_nou + \
+            "' WHERE (`id` = '" + \
+            id_prod + \
+            "');"
+        modifica(q)
         
-        return ret
+        n_nou = selecteaza("SELECT nume from produse WHERE `id` = "\
+            + id_prod + \
+            ";")[0][0]
         
+        print("\nN_NOU =", n_nou)
+        ret = n_nou
+        
+        return ret        
          
     def sterge(self):
-        global date_distribuitor
         print("DBG: sterge - request.values", request.values)
         
         id_prod = int(request.values["id"])
-        #print("DBG: id_prod de sters:", id_prod)
+        print("DBG: id_prod de sters:", id_prod)
         
-        #print(date_distribuitor["produse"])
-        prod = date_distribuitor["produse"]
-        print(prod)
-        
-        # ar trebui sa obtinem o lista cu un singur element
-        lst_index = [prod.index(el) for el in prod if el["id"] == id_prod]
-        
-        #print("Index-ul de sters:", lst_index) 
-           
-        index = int(lst_index[0])
-        
-        date_distribuitor["produse"].pop(index)
+        q = "DELETE FROM `site_distribuitor`.`produse` WHERE (`id` = %s);"
+            
+        sterge(q, id_prod)
+    
     

@@ -2,6 +2,7 @@
 
 <section>
     <article>
+    <SALUT>
     
     {% set tabel = produse %}
     {% set activare_stergere = 1%}
@@ -11,8 +12,24 @@
 
     </article>
     <aside>
+    <!-- novalidate -de adaugat la form sa nu faca validarea automat in browser -->
     <form name="form_adauga_produs" method="POST" action="/produse">
     <h3>Adauga produs</h3>
+        {{form.csrf_token}}
+        {{form.nume_produs_nou.label(style="margin-top: 5px")}}<br>
+        {{form.nume_produs_nou()}}<br>
+        {{form.id_producator.label()}}<br>
+        {{form.id_producator()}}<br>
+        {{form.submit(style="margin-top: 5px")}}<br>
+        {# quick_form genereaza un formular standard dar aspectul nu se potriveste
+           cu cel al paginii. Se poate folosi insa pentru solutii rapide #}
+        {# wtf.quick_form(form) #}
+    </form>
+    </aside>
+</section>
+
+
+<!--
     <label for=id_producator>Producator</label><br>
     <select id=id_producator name=id_producator>
         <option value="" selected></option>
@@ -24,6 +41,5 @@
     <label for=nume_produs_nou>Produs</label><br>
     <input style="margin-top: 5px" type=text id=nume_produs_nou name=nume_produs_nou><br>
     <input style="margin-top: 5px" type=submit value="Adauga">
-    </form>
-    </aside>
-</section>
+    
+-->
