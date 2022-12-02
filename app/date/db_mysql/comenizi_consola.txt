@@ -1,0 +1,93 @@
+##################################################
+# 1) Salvare baza de date:
+##################################################
+# - structura - tabele + relatii intre tabele
+# - date din tabele
+# Varianta mysql_base este facuta in MySQL
+# Sunt 4 tabele: producatori, produse, comenzi_la_producatori,
+#                continut_comenzi_la_producatori
+# iar datele sunt cele din dictionarul data.py.
+#
+# OBS. Daca folositi alt user, nu flaskdev, modificati corespunzator comanda
+#      Trebuie data si parola pentru user.
+
+
+mysqldump -u flaskdev -p site_distribuitor > site_distribuitor_base_mysql_20220728_01.sql
+
+
+# Atentie! in acest fisier nu apare si partea de creere a bazei de date si de
+#          selectare (use) a acesteie
+
+
+###################################################
+# 2) Resetare baza de date - la varianta base
+# 
+# Se poate face cu stergerea bazei de date si adaugarea ei din nou sau doar cu
+# adaugarea ei din nou. Fisierul de mai sus sterge tabelele si apoi le creeaza
+# si adauga datele.
+###################################################
+
+#################################################################
+# stergere din consola:
+#################################################################
+# 1) conectare la baza de date - cu clientul mysql
+mysql -u flaskdev -p
+
+# 2)  
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| site_distribuitor  |
+| sys                |
++--------------------+
+5 rows in set (0,01 sec)
+
+# 3) mysql> drop schema site_distribuitor;
+Query OK, 4 rows affected (0,14 sec)
+
+# afisare dupa stergere:
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0,00 sec)
+
+
+##################################################################
+# creere din consola si folosind fisierul generat de mysqldump
+##################################################################
+
+# ---------------
+# 1) creere si selectare baza de date si incarcare fisier sql
+# ---------------
+mysql> create database site_distribuitor;
+mysql> use site_distribuitor;
+mysql> source site_distribuitor_base_mysql_20220728_01.sql
+
+# ---------------
+# 2) import baza de date - din consola cu comanda mysql:
+# ---------------
+mysql -u flaskdev -p  site_distribuitor < site_distribuitor_base_mysql_20220728_01.sql 
+
+# NOTA: daca exportul a fost facut cu mysqldump ca la inceputul fisierului
+# fisierul .sql rezultat nu contine partea de creere baza de date.
+# trebuie editat si adaugat la inceputut:
+
+/*Comenzi de creere a bazei de date adaugate in plus fata de output-ul de la
+  mysqldump -u -p baza_date > baza_date.sql*/
+drop database if exists site_distribuitor;
+create database site_distribuitor;
+use site_distribuitor;
+-- **********************************************
+
+# Salvati si reexecutati comanda de mai sus din consola.
+

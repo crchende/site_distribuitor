@@ -1,31 +1,40 @@
-v0.3
+v0.4
 <pre>
 NOUTATI:
 ========
-Afisare tabele:
- - prducatori
- - comenzi la producatori
+Aceasta versiune foloseste o baza de date MySQL.
+Aplicatia interactioneaza cu baza de date, citeste date, le afiseaza, transmite
+in baza de date modificarile facute - fie de modificarea valorii unei componente
+fie stergerea acesteia.
 
-Adaugare actiuni:
+Se afiseaza tabelele:
+ - producatori
+ - produse
+ - continut comenzi la producatori
+
+Actiunile CRUD pe primele doua tabele sunt transmise in baza de date.
+
+CRUD:
  Creere
  Read    (citire)
  Update  (modificare)
  Delete  (stergere)
- 
- si pentru tabelul producatori (in v0.2 era doar pentru produse).
- 
- Pentru tabelul cu continutul comenzilor la producatori nu sunt implementate
- actiunile CRUD.
- Va fi nevoie de o alta abordare aici. 
- O comanda odata plasata, nu se mai poate modifica.
- 
- PROBLEME:
- 
- Programul are un 'bug': se poate sterge un producator pentru care avem produse.
- Nu ar trebui sa fie posibil sa se stearga un producator cat timp sunt produse
- de la acest producator.
- 
+
+Pagina 'Produse' nu permite adugarea unui produs daca nu se da numele acestuia
+sau nu se specifica producatorul.
+
+Pagina 'Producatori' nu are aceasta functionalitate. Se pot adauga producatori
+fara sa se specifice numele acestora. 
+
+Protectie la stergere - datorita configurarii bazei de date, nu se pot sterge
+producatori daca mai sunt produse.
+
 DE FACUT
 ========
-De adaugat cod sa nu se mai poata sterge un producator cat timp are produse.
+1. De modificat pagina producatori sa nu permita adaugarea de producatori fara
+   nume.
+   
+2. De afisat mesaj in pagina cand se incearca stergerea unui producator care are
+   produse.
+
 </pre>
