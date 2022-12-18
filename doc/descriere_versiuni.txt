@@ -1,0 +1,176 @@
+Etapele dezvoltarii aplicatiei site_distribuitor
+
+Problema:
+
+Avem un distribuitor de ciocolata. Acesta colaboreaza cu diversi furnizori.
+Fiecare furnizor are mai multe sortimente de ciocolata.
+Are mai multi clienti - diverse magazine care vand ciocolata.
+
+Distribuitorul are nevoie de o aplicatie care sa-l ajute sa-si desfasoare 
+activitatea.
+
+Exemple de activitati care ar trebui modelate in aplicatie:
+ - acces la lista de furnizori (producatori de ciocolata)
+ - acces la lista de produse de la furnizori
+ - acces la comenzile catre furnizori + detalii - ce contin acestea
+ - generare comanda noua catre furnizori
+ - acces la comenzile de la clienti + vizualizare continut comenzi
+ - adaugare / modificare / stergere furnizor/producator, produs, client etc.
+ 
+Aplicatia va fi o aplicatie full stack:
+ - parte de backend pentru procesarea datelor specifice activitatilor de mai sus
+ - baza de date pentru stocarea informatiei
+ - parte de front-end - afisare date + interactiune cu utilizatorul dintr-o
+   pagina WEB
+  
+ 
+Etape rezolvare:
+A) Implementare actiuni CRUD pentru:
+====================================
+    - producatori, 
+    - produse, 
+    - comenzi_la_producator.
+   CRUD = Create, Read, Update, Delete
+   
+   Aceste actiuni implica: 
+    - adaugare de noi informatii (Create)
+    - citirea si afisarea informatiilor (Read)
+    - modificarea informatiilor existente (Update)
+    - stergerea unor informatii (Delete)
+    
+    Etapa A are mai multe subetape.
+    
+    A1) Date hardcodate
+    ===================
+    Se incepe cu datele hadcodate in aplicatie (vezi detalii in descrierea app_v1)
+    Se construieste interfata grafica pentru vizualiza aceste date.
+    Se adauga operatiunile de modificare, adaugare de date noi, stergere, atat
+    suportul in interfata grafica cat si in partea de backend. 
+    Pe parcursul rularii aplicatiei, datele se incarca in memorie iar utilizatorul
+    poate modifica aceste date si rezultatele sunt vizibile in interfata grafica.
+        
+    app_v1 - implementare parte vizualizare pentru produse (Read)
+           - * partea de producatori si de comenzi la utilizatori raman de implementat
+             pe baza exemplului de la produse.
+             
+    app_v2 - adaugare functionalitati Insert/Update/Delete (Create Update Delete)
+             pentru produse
+           - * din nou partea de producatori si comenzi la producatori ramane
+             de implementat
+             
+    app_v3 - Extindere operatiuni CRUD si pentru producatori.
+             Pe partea de comenzi, nu are sens sa adaugam / stergem componente
+             din comenzi. Odata ce o comanda a fost trimisa, nu putem modifica
+             aceste date. Modificarile trebuie impementate separat printr-un 
+             proces diferit. Acesta va fi implementat intr-o etapa ulterioara.
+
+             Adaugare de notificari "flash" pentru anumite erori.
+             Utilizare pachet fask-wtf pentru formulare.
+            
+    A2) Utilizare baza de date MySQL
+    ==================== 
+    app_v4 - trecere de la date hardcodate la baza de date MySQL.
+           - necesita instalare si configurare MySQL si MySQL Workbench;
+           - import baza de date distribuita cu aplicatia sau creere baza de date
+             si adaugare date direct din WorkBench.
+           - datele hardcodate de la app_v1 sunt transferate intr-o baza de date.
+           - apicatia foloseste baza de date pentru producatori si produse
+           - * de portat si partea de comenzi producatori pentru a folosi datele
+             din baza de date
+             
+    app_v5 - nu se mai folosesc datele hardcodate, toate modulele aplicatiei
+             folosesc baza de date.
+             
+    A3) Utilizare SQLAlchemy si SQLite
+    ======================
+    app_v6 - trecere de a interactiune directa cu datele la SQLAlchemy.
+           - trecere de la baza de date MySQL la SQLite - in vederea instalarii
+             aplicatiei in cloud / site-uri de hosting.
+             (altfel ar trebui si baza de date in cloud. cu SQLite, baza de date
+             este intr-un fisier distribuit cu aplicatia)
+             
+             NOTA - varianta cu SQLite pentru un demo functioneaza bine.
+                  - pentru productie trebuie trecut pe MySQL sau pe PostgreSQL.
+                  - fisierul SQLite se poate corupe si recuperarea datelor este
+                    foarte dificila daca nu imposibila, deci de folosit doar
+                    pentru POC / DEMO.
+
+   
+B) Tratare cazuri particulare
+   Suport pentru generare comenzi catre furnizori
+   Suport pentru clienti pentru generare comenzi
+   ...
+   Gestionare stoc - comenzi la producator - adauga produse pe stoc
+                   - comenzi de la clienti - iau produse din stoc pentru clienti
+==================================================
+
+
+
+==================================================
+Descriere detaliata subetape:
+==================================================
+
+A1) app_v1
+==================================================
+Site flask care ia datele dintr-o structura de date
+definita in program - fisierul date.py
+Datele sunt structurate sub forma unui dictionar de liste de dictionare.
+
+date_distribuitor = {
+    "producatori": [
+        {"id": 1, "nume": "Poiana"},
+        ...
+    ],
+    "produse": [
+        {"id": 1, "id_producator": 1, "nume": "Ciocolata cu lapte"},
+        ...
+    ],
+    "comenzi_la_producatori": [
+        {"id": 1, "id_producator": 1},
+        ...
+    ],
+    
+    "continut_comenzi_la_producatori": [
+        {"id_comanda": 1, "id_produs": 1, "cantitate": 100},
+        ...
+    ],
+        
+    "clienti": [],
+    
+    "comenzi_de_la_clientii": [],
+}
+
+Parte de interactiune cu datele este rudimentara si este concentrata in fisierul:
+date/prelucrare_date.py.
+
+Aplicatia foloseste flask-bootstrap pentru creerea unui meniu cu mai multe pagini.
+Fiecare element din meniu are in partea de back-end o ruta care are asociata o 
+functie 'view' pentru acel meniu.
+Functia asociata cu ruta preia datele de care are nevoie si apoi le transmite
+template-ului pentru pagina respectiva in vederea afisarii folosind functia
+render_template din flask.
+
+A1) app_v2
+==================================================
+API-ul pentru lucru cu datele specifice produselor se muta in clasa Produse din 
+modulul (fisierul) componente/Produse.py.
+Functiile acestei clase implementeaza operatiile de inserare, citire, modificare,
+stergere.
+
+Partea de modificare nume produs se face combinat JavaScript cu fetch si ruta 
+dedicata in Python/Flask.
+Actualizarea datei nu se face prin reincarcarea paginii ca la formulare ci prin
+actualizarea celulei din tabel unde se editeza informatia - prin tehnologia AJAX.
+
+A1) app_v3
+==================================================
+Se implementeaza partea de producatori - clasa dedicata pentru prelucrarea 
+datelor. 
+Se configureaza aplicatia sa permita inserare / editare / modificare / stergere
+doar pentru produse si producatori, nu si pentru comenzi la producatori. Pentru 
+ultimul caz va fi doar vizualizare.
+Toate tabelele sunt afisate cu acelasi cod dar in functie de configurarea paginii
+vor fi permise sau nu actiunile de mai sus pentru categoria de date selectata.
+
+
+
