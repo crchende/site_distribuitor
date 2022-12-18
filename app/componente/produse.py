@@ -51,7 +51,7 @@ class Produse:
         
         q = "SELECT produse.id, producatori.nume, produse.nume \
             FROM producatori, produse \
-            WHERE produse.id_producator = producatori.id;"
+            WHERE produse.id_producator = producatori.id ORDER BY producatori.nume;"
         date = selecteaza(q)
         
         for (id_prds, nume_prodr, nume_prods) in date:
