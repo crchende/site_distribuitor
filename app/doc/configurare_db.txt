@@ -1,0 +1,9 @@
+Daca baza de date nu exista, trebuie executata aceasta medoda din *flask shell*
+        Din app executa comanda 
+        'porneste_flask_shell' (linux) sau 
+        'porneste_flask_shell.bat' (windows)
+        Executa din shell:
+        >>> modele.BazaDateBaza.init_db()
+        
+        pentru stergerea tuturor datelor executa:
+        >>> modele.BazaDateBaza.sterge_continut_db()

@@ -13,53 +13,56 @@ genereaza_body = function(pagina, _this) {
 $('body').on('focus', '[contenteditable]', function() {
     const _this = $(this);
     _this.data('before', _this.html());
-    //console.log($this.data('before'))
+    console.log("IN / FOCUS - event: ", event)
+    console.log("informatie colectata la acest eveniment", _this.data('before'))
     //'blur keyup paste input'
-    //Doar evenimentele blur, paste, keydown duc la transfer de date a server
-}).on('blur paste keydown', '[contenteditable]', function(event) {
+    //Doar evenimentele blur, keydown duc la transfer de date a server
+}).on('blur keydown', '[contenteditable]', function(event) {
     //console.log("event.which:", event.which)
-    console.log("event", event)
+    console.log("OUT - event", event)
     //Vreau ca doar apasarea tastei ENTER sa transfere date la server
     //Se trimit date si la click mouse in afara
     if(event.type === "keydown" && event.which != 13) {
         //console.log("Tastat tasta cu codul:", event.which)
         return
     } else {
-        console.log("Tastat ENTER. cod:", event.which)
+        //Nu merge 'paste' deoarece fac prevent default
+        console.log("Tastat ENTER sau iesit din celula. cod:", event.which)
         event.preventDefault()
-    }
-    const _this = $(this);
-    //console.log("this.id:", $this.attr('id'))
-    if (_this.data('before') !== _this.html()) {
-        _this.data('before', _this.html());
-        _this.trigger('change');
-        console.log("Editare INLINE: id, val", _this.attr('id'), _this.html())
-        console.log("_this:", _this)
-        
-        console.log("_this[0].className:", _this[0].className)
-        
-        pagina = _this[0].className
-        url = "modifica/" + pagina
-        body = genereaza_body(pagina, _this)
-        
-        fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: genereaza_body(pagina, _this),
-        })
-        .then(response => {
-            console.log("response:", response)
-            return response.text()
-        })
-        .then(data => {
-            console.log("Rezultat modificare:", data);
-            _this.html(data);
-            console.log("_this.html():", _this.html());
-            return data
-        })
-        .catch(error => console.log("EROARE fetch:", error));
+    
+        const _this = $(this);
+        //console.log("this.id:", $this.attr('id'))
+        if (_this.data('before') !== _this.html()) {
+            _this.data('before', _this.html());
+            //_this.trigger('change');
+            console.log("Editare INLINE: id, val", _this.attr('id'), _this.html())
+            console.log("_this:", _this)
+            
+            console.log("_this[0].className:", _this[0].className)
+            
+            pagina = _this[0].className
+            url = "modifica/" + pagina
+            body = genereaza_body(pagina, _this)
+            
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: genereaza_body(pagina, _this),
+            })
+            .then(response => {
+                console.log("response:", response)
+                return response.text()
+            })
+            .then(data => {
+                console.log("Rezultat modificare:", data);
+                _this.html(data);
+                console.log("_this.html():", _this.html());
+                return data
+            })
+            .catch(error => console.log("EROARE fetch:", error));
+        }
     }
 });
 

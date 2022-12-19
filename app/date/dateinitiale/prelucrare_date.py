@@ -2,7 +2,7 @@
 # API prelucrare date
 ##########################
 
-from app.date.date import date_distribuitor
+from .date import date_distribuitor
 
 # Definire functii ajutatoare
 def gaseste_nume_producator(id_producator):

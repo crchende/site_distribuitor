@@ -1,10 +1,14 @@
-from flask import request
+from .. import db
+from ..date.modele import ModelProduse, ModelProducatori
+
+#from flask import request
 
 from flask_wtf import FlaskForm
 from wtforms import Form, StringField, SelectField, SubmitField
 from wtforms.validators import DataRequired, ValidationError
 
-from app.date.mysqldb import selecteaza, insereaza, sterge, modifica
+import logging
+logger = logging.getLogger(__name__)
 
 
 # TBD - adaugarea mesajelor personalizate la verificare nu functioneaza ca mai 
@@ -28,78 +32,84 @@ class FormProduse(FlaskForm):
     '''
     
 class Produse:
-
-    '''
-    genereaza_tabel_produse
-    
-    Descriere:
+    def genereaza_date_produse(self, cu_cap_tabel=1):
+        '''
         Preia datele referitoare la produse. 
 
-    Parametrii:
-        cu_cap_tabel:   valoare default 1; adauga o lista cu numele coloanelor
-                        pentru tabelul cu produse
-                        
-    Return:
-        O lista de liste, cu toate datele din produse, inclusiv ID-ul pentru
-        a putea implementa si operatiunile de stergere si modificare.
-    
-    '''
-    def genereaza_date_produse(self, cu_cap_tabel=1):
+        :param:  cu_cap_tabel:   valoare default 1; adauga o lista numele 
+                                coloanelor pentru tabelul cu produse
+                            
+        :return: o lista de obiecte, cu toate datele din produse, inclusiv ID-ul pentru
+            a putea implementa si operatiunile de stergere si modificare.
+        
+        '''
+
         # initializare cu cap tabel
         ret = [["ID", "Producator", "Produs"]] 
         # va fi o lista de liste - fiecare element - un rand in tabel
         
-        q = "SELECT produse.id, producatori.nume, produse.nume \
-            FROM producatori, produse \
-            WHERE produse.id_producator = producatori.id ORDER BY producatori.nume;"
-        date = selecteaza(q)
+        q = ModelProduse.query.all()
         
-        for (id_prds, nume_prodr, nume_prods) in date:
-            print("DBG: ", id_prds, nume_prodr, nume_prods)
-            ret.append((id_prds, nume_prodr, nume_prods))
+        for el in q:
+            nume_producator = ModelProducatori.query\
+            .filter_by(id=el.id_producator).first().nume
+            ret.append([el.id, nume_producator, el.nume])
+        
+        return ret
+        
+    def adauga(self, id_producator, nume_produs_nou):
+        '''
+        Adauga un nou produs.
+        
+        :param: id_producator: 
+        :param: nume_produs_nou:
+        
+        :return: obiectul adaugat, selectat din baza de date 
+                 (pot verifica ca am adaugat obiectul)
+        '''
+        produs_nou = ModelProduse(id_producator=id_producator, \
+            nume=nume_produs_nou)
             
-        return ret
+        db.session.add(produs_nou)
+        db.session.commit()              
+
+        p_n = ModelProduse.query.filter_by(nume=nume_produs_nou).first()
+        logger.debug(str(p_n))
         
-    def adauga(self, id_producator, nume_produs_nou):       
-        q = "INSERT INTO `site_distribuitor`.`produse` (`id_producator`, `nume`) VALUES (%s, %s);"
-        
-        rez_insert = insereaza(q, id_producator, nume_produs_nou) 
-        if rez_insert == []:
-            ret = f"id producator: {id_producator}, nume produs: {nume_produs_nou}"
-        else:
-            ret = rez_insert
-        
-        return ret
+        return p_n
           
     def modifica(self, id_prod, nume_nou):
+        '''
+        Modifica numele unui produs.
+        
+        :param:  id_prod:  id-ul produsului
+        :param:  nume_nou: noul nume pentru produs
+        
+        :return: obiectul modificat selectat din baza de date
+        '''
+        global date_distribuitor
         ret = "-"
         
-        print("DBG: modificare denumire produs cu ID:", id_prod, "la: ", nume_nou)
+        logger.debug(f'modificare denumire produs cu ID: {id_prod} la: {nume_nou}')
+        prod = date_distribuitor["produse"]
+        lst_index = [prod.index(el) for el in prod if el["id"] == int(id_prod)]
+        print("lst_index", lst_index)
+        index = int(lst_index[0])
         
-        q = "UPDATE `site_distribuitor`.`produse` SET `nume` = '" + \
-            nume_nou + \
-            "' WHERE (`id` = '" + \
-            id_prod + \
-            "');"
-        modifica(q)
+        prod[index]["nume"] = nume_nou
+        ret = prod[index]["nume"]
         
-        n_nou = selecteaza("SELECT nume from produse WHERE `id` = "\
-            + id_prod + \
-            ";")[0][0]
+        return ret
         
-        print("\nN_NOU =", n_nou)
-        ret = n_nou
-        
-        return ret        
          
-    def sterge(self):
-        print("DBG: sterge - request.values", request.values)
+    def sterge(self, id_prod):
+        '''
+        Sterg produsul selectat.
         
-        id_prod = int(request.values["id"])
-        print("DBG: id_prod de sters:", id_prod)
+        :param: id_prod: id-ul produsului de sters, selectat din pagina WEB
+        '''
+        logger.debug(f'sterge prods cu id-ul: {id_prod}')
         
-        q = "DELETE FROM `site_distribuitor`.`produse` WHERE (`id` = %s);"
-            
-        sterge(q, id_prod)
-    
-    
+        del_obj = ModelProduse.query.filter_by(id=id_prod).first()
+        db.session.delete(del_obj)
+        db.session.commit()
