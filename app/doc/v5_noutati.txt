@@ -1,0 +1,67 @@
+Versiunea 5 (V5) contine doua schimbari majore fata de V4:
+
+1) Utilizare SQLITE ca baza de date
+    
+    Baza de date SQLITE este un fisier.
+        
+    Odata instalat pachetul python care contine API-ul SQLITE, nu mai este
+    nevoie sa se instaleze nimic altceva pe masina - ca in cazul MySQL / 
+    MariaDB / PostgreSQL
+
+    Avantajul este ca aplicatia este foarte portabila - poate fi pusa pe orice
+    sever capabil sa ruleze python & flask.
+    
+    ATENTIE! 
+    - pentru un site demo este perfect
+    - pentru un site de productie trebuie trecut pe MySQL / MariaDB / PostgreSQL
+    
+    SQLITE este foarte bun pentru 'proof of concept'. Nu  are nevoie de
+    instalare, baza de date este un fisier. 
+    In acest caz, baza de date este: 
+        app/date/site_distribuitor_dev.sqlite
+
+    Sistemele de gestiune de baze de date mentionate mai sus (sau altele daca
+    se prefera altceva) pun la dispozitie o infrastructura foarte robusta pentru 
+    a stoca si a lucra cu date.
+    Dezavantajul pentru portabilitate, este ca trebuie instalate pe masinile / 
+    containerele unde vom pune si aplicatia, sau trebuie instalate intr-o
+    locatie unde sunt accesibile.
+
+
+    SQLAlchemy contine API-ul pentru a lucra cu SQLite.
+    La fel si: Flask-SQLAlchemy
+    
+    SQLAlchemy este folosit de alembic pentru migrari
+    Flask-SQLAlchemy - este folosit de Flask.
+    
+
+
+2) Utilizare SqlAlchemy Python SQL toolkit and ORM (Object Relational Mapper)
+
+    Accesul la date se va face prin intermediul sqlalchemy.
+    Aceasta presupune creerea unor clase care corespund cu tabelele din baza
+    de date.
+    Accesul la date se va face prin intermediul acestor clase, nu direct.
+    
+    Aceste clase sunt definite in date/modele.py.
+    
+        Fiecare clasa de aici, are variabile de clasa care corespund coloanelor
+        din tabelele din baza de date si doua metode:
+        __str__
+        __repr__
+        
+        pentru a transforma in string sau pentru o reprezentare care poate fi
+        evaluata in vederea creeri obiectului din stringul in care este 
+        reprezentat
+        
+        
+        Clasa: BazaDateBaza (din modele.py)
+        
+        Obiectivul acestei clase este de a pune la dispozitie metode pentru
+        a crea / sterge baza de date - operatiuni necesare la prima executie a 
+        aplicatiei.
+        
+        Pe langa acestea, sunt si cateva exemple de interogari, reunite in
+        metoda: exemple_interogari_db
+        
+        

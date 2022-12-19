@@ -16,7 +16,7 @@
         <td style="border: 1px solid; padding: 4px; font-size: 18px;">{{i}}</td>
         
         <!-- Pe fiecare linie adaugam celulele -->
-        {% for j in range(1, tabel[i]|length -1) %}
+        {% for j in range(prima_coloana, tabel[i]|length -1) %}
         <td style="border: 1px solid; padding: 4px; font-size: 18px;">{{tabel[i][j]}}</td> 
         {% endfor %}
         <!-- Ultima celula de pe linie, pe care o vrem editabila -->
