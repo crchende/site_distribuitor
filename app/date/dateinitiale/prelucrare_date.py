@@ -32,6 +32,21 @@ def gaseste_nume_producator_produs(id_produs):
             ret = gaseste_nume_producator(el["id_producator"])
     return ret
 
+
+def transforma_lista_tupluri(lst_dict):
+    ret = []
+    for el in lst_dict:
+        lst = []
+        for k in el.keys():
+            lst.append(el[k])
+            
+        tpl = tuple(lst)
+        ret.append(tpl)
+
+    return ret
+            
+        
+        
   
 ###############################################################################    
 # definire functii care pregatesc structurile de date pentru afisare in pagina
