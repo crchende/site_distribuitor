@@ -1,8 +1,12 @@
 from flask import render_template, request, redirect, url_for, session, flash
 import logging
 
+from flask_mail import Message
+import time
+
 from . import main
 from .. import db
+from .. import mail
 
 import app.date.modele as modele
 
@@ -148,3 +152,19 @@ def afisare_comenzi_producatori():
     lst_continut_cmd_prod = ccmdlaprod.genereaza_date_continut_comenzi_producator()
     return render_template('index.html', page="comenzi la producatori", \
         continut_comenzi_producatori = lst_continut_cmd_prod)
+        
+##################################################
+# Testare email   
+##################################################
+@main.route('/test_mail')
+def test_mail():
+    msg = Message(f"Salutare din site_distribuitor {time.ctime()}",
+        sender="cip.chende.dev@gmail.com",
+        recipients=["cip_chende@yahoo.com"])
+    msg.body = "mesaj text"
+    msg.html = "<b>mesaj html</b>"
+    
+    mail.send(msg)
+    
+    return "SALUT"
+

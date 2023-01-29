@@ -1,4 +1,5 @@
 from .. import db
+
 from .dateinitiale.date import date_distribuitor
 import logging
 
@@ -20,6 +21,9 @@ class ModelProducatori(db.Model):
     
     def __repr__(self):
         return f"Producatori(id={self.id!r}, nume={self.nume!r})"
+        
+    def date(self):
+        return (self.id, self.nume)
 
 
 class ModelProduse(db.Model):
@@ -40,6 +44,9 @@ class ModelProduse(db.Model):
     
     def __repr__(self):
         return f"Produse(id={self.id!r}, id_producator={self.id_producator!r} nume={self.nume!r})"
+        
+    def date(self):
+        return (self.id, self.id_producator, self.nume)
 
 
 class ModelComenziLaProducatori(db.Model):
@@ -53,6 +60,11 @@ class ModelComenziLaProducatori(db.Model):
         
     def __str__(self):
         return f"({self.id!r}, {self.id_producator!r})"
+        
+    
+    def date(self):
+        return (self.id, self.id_producator)
+        
     
 class ModelContinutComenziLaProducatori(db.Model):
     __tablename__ = "continut_comenzi_la_producatori"
@@ -77,6 +89,10 @@ class ModelContinutComenziLaProducatori(db.Model):
 
     def __repr__(self):
         return f"ModelCotinutComenziLaProducator(id_comanda={self.id_comanda!r}, id_produs={self.id_produs!r}, cantitate={self.cantitate})"
+        
+    def date(self):
+        return (self.id_comanda, self.id_produs, self.cantitate)
+        
     
 class BazaDateBaza:
     '''
@@ -107,12 +123,16 @@ class BazaDateBaza:
     '''
 
     @staticmethod
-    def init_db():
+    def init_db(dbdebug = True):
         global date_distribuitor
         '''
         Creaza tabelele in baza de date sqlite.
         Adauga datele din date_distribuitor in baza de date.
         '''
+        if dbdebug:
+            logger.debug("Creere si initializare baza de date cu datele initiale")
+        #logger.debug(f"dbdebug = {dbdebug}")
+        
         # creere tabele
         db.create_all()
         
@@ -142,28 +162,43 @@ class BazaDateBaza:
         
         db.session.commit()
         
-        logger.debug("Verificare DB SQLITE - citire date:")
-        logger.debug("DB Producatori:")
-        for l in ModelProducatori.query.all():
-            print(l)
+        if dbdebug:
+            logger.debug("Verificare DB SQLITE - citire date:")
+            logger.debug("Vefificare DB Producatori:")
+            for l in ModelProducatori.query.all():
+                print(l)
+                
+            print("---\n")
+            logger.debug("Verificare DB Produse:")
+            for l in  ModelProduse.query.all():
+                print(l)
             
-        print("---\n")
-        logger.debug("DB Produse:")
-        for l in  ModelProduse.query.all():
-            print(l)
-        
-        print("---\n")
-        logger.debug("DB Comenzi La Producatori:")
-        for l in  ModelComenziLaProducatori.query.all():
-            print(l)
-        
-        print("---\n")
-        logger.debug("DB Continut Comenzi La Producatori:")
-        logger.debug(f'Tot continutul: {ModelContinutComenziLaProducatori.query.all()}')
-        logger.debug("--linie cu linie--")
-        for l in  ModelContinutComenziLaProducatori.query.all():
-            print(l)
-    
+            print("---\n")
+            logger.debug("Verificare DB Comenzi La Producatori:")
+            for l in  ModelComenziLaProducatori.query.all():
+                print(l)
+            
+            print("---\n")
+            logger.debug("Verificare DB Continut Comenzi La Producatori:")
+            logger.debug(f'Tot continutul: {ModelContinutComenziLaProducatori.query.all()}')
+            logger.debug("--linie cu linie--")
+            for l in  ModelContinutComenziLaProducatori.query.all():
+                print(l)
+
+    @staticmethod
+    def ia_date_producatori():
+        #logger.debug("Verificare date in DB pentru Producatori:")
+        p = ModelProducatori.query.all()
+        lst_p = [(l.id, l.nume) for l in p]
+        return(lst_p)
+   
+    @staticmethod
+    def ia_date_produse():
+        #logger.debug("Verificare date in DB pentru Produse:")
+        p = ModelProduse.query.all()
+        lst_p = [l.date() for l in p]
+        return lst_p
+         
                 
     @staticmethod
     def sterge_continut_db():

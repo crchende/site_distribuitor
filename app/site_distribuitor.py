@@ -2,8 +2,10 @@ import os
 from app import create_app, db
 import app.date.modele as modele
 from flask_migrate import Migrate
-import logging
 
+import unittest
+
+import logging
 logger = logging.getLogger(__name__)
 
 # default = optiunea 'development' din config
@@ -22,3 +24,10 @@ migrate = Migrate(app, db)
 @app.shell_context_processor
 def make_shell_context():
     return dict(db = db, modele = modele)
+    
+@app.cli.command()
+def test():
+    """Run the unit tests."""
+    logger.debug("Rulare teste definite cu unittest")
+    tests = unittest.TestLoader().discover('tests')
+    unittest.TextTestRunner(verbosity=2).run(tests)    
