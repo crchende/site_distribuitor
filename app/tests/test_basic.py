@@ -10,8 +10,14 @@ from app.date.dateinitiale.prelucrare_date import transforma_lista_tupluri
 #logger = logging.getLogger(__name__)
 
 class BasicTestCase(unittest.TestCase):
+    def __init__(self, *args):
+        super().__init__(*args)
+        logger.debug("Pregatire pentru testare - apel unittest.TesLoader().discover('tests')")
+    
+    # Se creaza o noua aplicatie - cu parametrul 'testing'
+    # Pe aceasta aplicatie se va lucra, nu pe cea initiala creata in site_distribuitor
     def setUp(self):
-        #logger.debug("Configurare context si baza de date")
+        #logger.debug("Pregatire pentru testare - apel unittest.TesLoader().discover('tests')")
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
         self.app_context.push()

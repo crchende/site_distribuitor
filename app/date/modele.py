@@ -13,8 +13,8 @@ class ModelProducatori(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     nume = db.Column(db.String(30))
-    
-    produse = db.relation('ModelProduse', backref='producator')
+    produse = db.relationship('ModelProduse', backref='producator')
+    #print(" produse:", type(produse))
     
     def __str__(self):
         return f"({self.id!r}, {self.nume!r})"
@@ -202,12 +202,13 @@ class BazaDateBaza:
                 
     @staticmethod
     def sterge_continut_db():
+        logger.info("Stergere continut baza de date")
         db.drop_all()
 
 
     @staticmethod
     def exemple_interogari_db():
-        logger.debug("\nEchivalent cu: SELECT id, nume from produse")
+        logger.debug("Echivalent cu: SELECT id, nume from produse")
         x = ModelProduse.query.\
             with_entities(ModelProduse.id, ModelProduse.nume).\
             all()
