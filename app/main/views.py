@@ -159,8 +159,8 @@ def afisare_comenzi_producatori():
 @main.route('/test_mail')
 def test_mail():
     msg = Message(f"Salutare din site_distribuitor {time.ctime()}",
-        sender="cip.chende.dev@gmail.com",
-        recipients=["cip_chende@yahoo.com"])
+        sender="name@gmail.com",
+        recipients=["name@yahoo.com"])
     msg.body = "mesaj text"
     msg.html = "<b>mesaj html</b>"
     
