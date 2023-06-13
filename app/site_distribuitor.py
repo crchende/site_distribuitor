@@ -27,14 +27,14 @@ def make_shell_context():
     return dict(db = db, modele = modele)
     
 @app.cli.command()
-def test():
+def execunittest():
     """Run the unit tests."""
     logger.debug("Rulare teste definite cu unittest")
     tests = unittest.TestLoader().discover('tests')
     unittest.TextTestRunner(verbosity=2).run(tests)    
     
 @app.cli.command()
-def createdb():
+def initbd():
     logger.info(app.config['SQLALCHEMY_DATABASE_URI'])
     modele.BazaDateBaza.sterge_continut_db()
     modele.BazaDateBaza.init_db()
