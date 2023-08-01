@@ -1,0 +1,8 @@
+Descrierea versiunilor am adaugat-o in app/templates/descriere_versiune.html
+In acest fel este disponibila direct in WEB in pagina principala a aplicatiei.
+
+
+IMPORTANT
+ - Nu voi mai adauga in doc informatii despre versiuni
+ - Acestea vor fi adaugate doar in templates/descriere_versiune.html
+ - La fiecare noua versiune, descrierea va fi la inceputul fisierului.
