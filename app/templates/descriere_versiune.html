@@ -1,6 +1,24 @@
 v0.5
 <pre>
 NOUTATI:
+=========
+Versiunea 0.6+ (V0.6+) adauga suport pentru containerizarea aplicatiei.
+
+1) Configurare Dockerfile in directorul site_distribuitor
+
+2) Utilizare quickrequirements.txt in loc de requirements.txt
+    - requirements.txt generat cu pip freeze > requirements.txt pastreaza si versiunile 
+      pachetelor. Am avut probleme pe versiuni mai noi de Linux datorita faptului ca
+      pachetele mai vechi nu puteau fi instalate (trecere de la Python 3.8 la Python 3.11)
+
+    - pentru ca apllicatia functioneaza cu orice versiune > de Python 3.8 am 
+      abstractizat fisierul requirements, adaugand doar pachetele 'mari' flask-sqlalchemy, Flask
+      etc. (a se vedea quickrequirements.txt)
+
+========
+Versiunea 6 (V0.6)
+
+
 ========
 1)  Versiunea app_v5 folosete date din baza de date SQLite. Baza de date
     este un fisier stocat in aplicatie: 

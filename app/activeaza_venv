@@ -13,5 +13,6 @@ else
     echo "Activating virtual environment"
     source ../.venv/bin/activate
     echo "Installing the dependencies"
-    pip install -r requirements.txt
+    #pip install -r requirements.txt
+    pip install -r quickrequirements.txt
 fi
