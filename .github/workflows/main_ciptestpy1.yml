@@ -60,4 +60,4 @@ jobs:
         with:
           app-name: 'ciptestpy1'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A3E0F2BA50144DB683CFC924474FC7D0 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E7D3FE8A3EEF456F98B40AC5572AFD99 }}
