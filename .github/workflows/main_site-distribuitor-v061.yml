@@ -41,11 +41,12 @@ jobs:
       #      !venv/
 
       - name: 'Deploy to Azure Web App'
-        run: |
-          source .venv/bin/activate
-          pwd
-          ls -la
-          exec gunicorn site_distribuitor:app
+        uses: azure/webapps-deploy@v2
+        id: deploy-to-webapp
+        with:
+          app-name: 'site-distribuitor'
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_118BDE1914D04888B24F27834166BD18 }}
 
 
 #  deploy:
