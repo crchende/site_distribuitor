@@ -44,7 +44,7 @@ jobs:
         uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
         with:
-          app-name: 'site-distribuitor'
+          app-name: 'site-distribuitor-v061'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_118BDE1914D04888B24F27834166BD18 }}
 
