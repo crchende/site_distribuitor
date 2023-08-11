@@ -1,5 +1,6 @@
 from .. import db
 from ..date.modele import ModelProduse, ModelProducatori
+from app import APPNAME
 
 #from flask import request
 
@@ -8,7 +9,8 @@ from wtforms import Form, StringField, SelectField, SubmitField
 from wtforms.validators import DataRequired, ValidationError
 
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(APPNAME + "." +__name__)
+logger.debug(f"Incarcare modul")
 
 
 # TBD - adaugarea mesajelor personalizate la verificare nu functioneaza ca mai 

@@ -3,7 +3,7 @@ from flask_bootstrap import Bootstrap
 from flask_mail import Mail
 #from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
-from .config import config
+APPNAME = 'site_distribuitor'
 
 import logging
 ###################
@@ -16,7 +16,7 @@ import logging
 # this is for the root logger from which all the loggers are derived
 #logging.basicConfig(level = logging.DEBUG)
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(APPNAME +"."+__name__)
 #We can configure strictly our logger
 logger.setLevel(logging.DEBUG)
 # creating a logging handler with level DEBUG
@@ -34,8 +34,11 @@ console_handler.setFormatter(formatter)
 #attaching the handler to the logger
 logger.addHandler(console_handler)
 
-logger.debug("Initializare aplicatie")
 
+logger.debug('Incarcare configuratie')
+from config import config
+
+logger.debug("Initializare aplicatie")
 ###########################################################
 bootstrap = Bootstrap()
 mail = Mail()

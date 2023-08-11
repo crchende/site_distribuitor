@@ -15,11 +15,22 @@ WORKDIR /home/site
 
 COPY app app
 COPY doc doc
+COPY tests tests
+COPY migrations migrations
+COPY activeaza_venv activeaza_venv
+COPY config.py config.py
+COPY dockerstart.sh dockerstart.sh
+COPY quickrequirements.txt quickrequirements.txt
+COPY README.md README.md
+COPY ruleaza_aplicatia ruleaza_aplicatia
+COPY site_distribuitor.py site_distribuitor.py
+
+
 
 RUN python -m venv .venv
-RUN .venv/bin/pip install -r app/quickrequirements.txt
+RUN .venv/bin/pip install -r quickrequirements.txt
 
-WORKDIR /home/site/app
+#WORKDIR /home/site/
 
 # runtime configuration
 EXPOSE 5010

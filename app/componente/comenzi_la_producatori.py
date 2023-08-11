@@ -5,9 +5,11 @@ from ..date.modele import \
     ModelProducatori
     
 from .. import db
+from app import APPNAME
 
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(APPNAME + "." +__name__)
+logger.debug(f"Incarcare modul")
 
 class ComenziLaProducatori:
     pass

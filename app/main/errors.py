@@ -1,5 +1,10 @@
 from flask import render_template
 from . import main
+from app import APPNAME
+
+import logging
+logger = logging.getLogger(APPNAME + "." +__name__)
+logger.debug(f"Incarcare modul")
 
 @main.app_errorhandler(404)
 def page_not_found(e):

@@ -1,5 +1,8 @@
 from flask import render_template, request, redirect, url_for, session, flash
+from app import APPNAME
 import logging
+logger = logging.getLogger(APPNAME + "." +__name__)
+logger.debug(f"Incarcare modul")
 
 from flask_mail import Message
 import time

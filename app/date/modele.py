@@ -3,7 +3,10 @@ from .. import db
 from .dateinitiale.date import date_distribuitor
 import logging
 
-logger = logging.getLogger(__name__)
+from app import APPNAME
+
+logger = logging.getLogger(APPNAME + "." + __name__)
+logger.debug("Incarcare modul")
 
 ################################################################################
 # ORM - Object Relational Mapper

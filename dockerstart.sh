@@ -1,6 +1,6 @@
 #!/bin/sh
 echo "Activare venv:"
-source ../.venv/bin/activate
+source .venv/bin/activate
 echo "Configurare variabila mediu FLASK_APP"
 export FLASK_APP=site_distribuitor
 echo "Start server:"

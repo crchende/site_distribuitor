@@ -1,10 +1,11 @@
 from ..date.modele import ModelProducatori
 from .. import db
 from flask import request
+from app import APPNAME
 
 import logging
-
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(APPNAME + "." +__name__)
+logger.debug(f"Incarcare modul")
 
 
 class Producatori:

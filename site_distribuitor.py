@@ -1,12 +1,9 @@
 import os
-from app import create_app, db
+from app import create_app, db, logger
 import app.date.modele as modele
 from flask_migrate import Migrate
 
 import unittest
-
-import logging
-logger = logging.getLogger(__name__)
 
 # default = optiunea 'development' din config
 # baza de date este: app/date/site_distribuitor_dev.sqlite
@@ -16,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 # Daca se doreste schimbarea valorii implicite, trebuie modificata configuratia
 # in config.py - asociat altceva cheia 'default'. 
-logger.debug(os.getenv('FLASK_CONFIG'))
+logger.debug('FLASK_CONFIG: ' + str(os.getenv('FLASK_CONFIG')))
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 logger.debug("Aplicatia a fost creata.")

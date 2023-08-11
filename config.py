@@ -1,7 +1,7 @@
 import os
 import logging
 
-logger = logging.getLogger(__name__)
+from app import logger
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -23,7 +23,7 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-    'sqlite:///' + os.path.join(basedir, "date", "site_distribuitor_dev.sqlite")
+    'sqlite:///' + os.path.join(basedir, "app", "date", "site_distribuitor_dev.sqlite")
     
 class TestingConfig(Config):
     TESTING = True
@@ -33,7 +33,7 @@ class TestingConfig(Config):
     
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-    'sqlite:///' + os.path.join(basedir, "date", "site_distribuitor.sqlite")
+    'sqlite:///' + os.path.join(basedir, "app", "date", "site_distribuitor.sqlite")
     
 config = {
     'development': DevelopmentConfig,
