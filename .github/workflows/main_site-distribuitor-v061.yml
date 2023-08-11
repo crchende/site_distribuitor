@@ -43,7 +43,9 @@ jobs:
       - name: 'Deploy to Azure Web App'
         run: |
           source .venv/bin/activate
-          gunicorn site_distribuitor:app
+          pwd
+          ls -la
+          exec gunicorn site_distribuitor:app
 
 
 #  deploy:
