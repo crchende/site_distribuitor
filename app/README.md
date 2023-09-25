@@ -1,8 +1,7 @@
 # Continut:
 
-1. ## INITIALIZARE
-
-## 1. Interogari SQLAlchemy
+1. INITIALIZARE
+1. Interogari SQLAlchemy
 
 Vezi si directorul doc
 
