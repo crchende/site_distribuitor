@@ -7,21 +7,31 @@
 {% endblock title %}
 
 {% block navbar %}
-    <nav class="navbar navbar-expand-lg navbar-inverse" style="background: navy;">        
-        <a class='navbar-brand' href="/" style="font-size: 25px;">Distribuitor Ciocolata</a>
-        <div class="collapse navbar-collapse" id="mynavbar">
-            <ul class="nav navbar-nav">
-                <li><a href="/comenzi-producatori" style="font-size: 20px;">Comenzi Producatori</a></li>
-                <li><a href="/produse" style="font-size: 20px;">Produse</a></li>
-                <li><a href="/producatori" style="font-size: 20px;">Producatori</a></li>
-            </ul>
+    <div class="navbar navbar-inverse" style="background: navy;" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toogle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class='navbar-brand' href="/" style="font-size: 25px;">Distribuitor Ciocolata</a>
+            </div>
+            <div class="navbar-collapse collapse" id="mynavbar">
+                <ul class="nav navbar-nav">
+                    <li><a href="/comenzi-producatori" style="font-size: 20px;">Comenzi Producatori</a></li>
+                    <li><a href="/produse" style="font-size: 20px;">Produse</a></li>
+                    <li><a href="/producatori" style="font-size: 20px;">Producatori</a></li>
+                </ul>
+            </div>
         </div>
-    </nav>
+    </div>
 {% endblock %}
 
 {% block head %}
     {{ super() }}
-    
+    <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/x-icon">
     <style>
     #content {
         margin: 5px;
