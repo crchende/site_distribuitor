@@ -1,7 +1,10 @@
 # Continut:
 
 1. INITIALIZARE
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4189c596fa9b30be38bf01d84a0244fc55da9f45
 1. Interogari SQLAlchemy
 
 Vezi si directorul doc
