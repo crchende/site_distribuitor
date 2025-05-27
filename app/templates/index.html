@@ -1,28 +1,7 @@
 {% extends "base.html" %}
 
-{% block content %}
-<div class="container flashMessage", style="width:50%; position:fixed; margin-left:20%;">
-    <script>
-    setTimeout(function() {
-        $('.flashMessage').fadeOut('fast');
-    }, 3000); // <-- time in milliseconds
-    </script>
-
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-warning" role="alert" style="opacity:.7; color:inherit">
-                <button type="button" class="close" data-dismiss="alert">
-                    &times;
-                </button>
-                {{message}}
-            </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-</div>
-
-<div id=content>
+{% block content_content %}
+<div id=descriere>
     {% if page == "distribuitor ciocolata" %}
         <h1> {{page|title}} {% include 'versiune.html' %}</h1>
         <pre>                            
