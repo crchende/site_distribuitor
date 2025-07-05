@@ -1,11 +1,8 @@
 import os
 import logging
+from chocodist.params import basedir
 
-from app import logger
-
-basedir = os.path.abspath(os.path.dirname(__file__))
-
-logger.debug(f'basedir: {basedir}')
+APPNAME = "ChocoDist"
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or "parola pentru wtforms"
@@ -23,7 +20,7 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-    'sqlite:///' + os.path.join(basedir, "app", "date", "site_distribuitor_dev.sqlite")
+    'sqlite:///' + os.path.join(basedir, "date", "site_distribuitor_dev.sqlite")
     
 class TestingConfig(Config):
     TESTING = True
@@ -42,6 +39,3 @@ config = {
     
     'default': DevelopmentConfig,
 }
-
-
-    

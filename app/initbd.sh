@@ -1,1 +1,0 @@
-flask --app site_distribuitor initbd
