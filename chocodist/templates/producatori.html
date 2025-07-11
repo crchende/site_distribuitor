@@ -1,0 +1,18 @@
+{% extends "base.html"%}
+
+{% block title %} Producatori {% endblock title %}
+
+{% block page_content %}
+    <header>
+        <h1>Producatori</h1>
+    </header>
+
+    <table class="tabeldetaliat">
+    {% set ns = namespace(i=1) %}
+    <tr><th>Nr.</th><th>Nume</th></tr>
+    {% for p in producatori %}
+        <tr><td>{{ ns.i }}</td><td>{{ p.nume }}</td></tr>
+        {% set ns.i = ns.i + 1 %}
+    {% endfor %}
+    </table>
+{% endblock page_content %}

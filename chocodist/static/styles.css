@@ -1,0 +1,48 @@
+#page_content {
+    margin: 5px;
+    /*background-color: greenyellow;*/
+}
+
+.tabeldetaliat td {
+    padding: 3px 3px 0px 3px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: gray;
+    background-color: lightyellow;
+}
+.tabeldetaliat th {
+    padding: 3px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: gray;
+    background-color: darkblue;
+    color: white;
+    font-weight: bolder;
+}
+
+
+.navbar {
+    background-color: darkblue;
+    color: white;
+    font-weight: bolder;
+}
+
+
+.container {
+    width:auto;
+}
+
+.nav-item {
+    /*border-radius: 30%;
+    background-color:darkslateblue;*/
+}
+
+.navitem-left-side {
+    background-color: blue;
+    float: right;
+}
+
+
+.navbar-header {
+    background-color: cyan;
+}

@@ -20,6 +20,7 @@ from .loggingsetup import logger
 
 
 logger.debug('Incarcare configuratie')
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 from config import config
 
@@ -110,7 +111,7 @@ def db_engine_afiseaza_tabele():
 
 
 '''
-# Rezultat executie comanda (cu baa de date doar cu datele initiale)
+# Rezultat executie comanda (cu baza de date doar cu datele initiale)
 [2025-07-05 23:58:27,188]: DEBUG: ChocoDist: <module>: Incarcare configuratie
 [2025-07-05 23:58:27,195]: DEBUG: ChocoDist: <module>: Aplicatia a fost creata.
 Interogare producatori: SELECT producatori.id, producatori.nume 
@@ -136,7 +137,10 @@ flask --app chocodist db-afiseaza-tabele
 def sqlite_afiseaza_tabele():
     q = text("SELECT name FROM sqlite_master WHERE type='table'")
     r = db.session.execute(q).all()
-    logger.info(f"q_lst: {q_lst}")
+    logger.info(f"rezultat interogare - cu execute: {r}")
+    r = db.session.scalars(q).all()
+    logger.info(f"rezultat interogare - cu scalars: {r}")
+    logger.info("Se observa in primul set de rezultate - lista tupluri cu un singur element / al doilea set de rezultate - lista")
 
 
 @app.cli.command()
