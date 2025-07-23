@@ -1,25 +1,60 @@
+/* ============ main page ============*/
+
 #page_content {
     margin: 5px;
     /*background-color: greenyellow;*/
 }
 
-.tabeldetaliat td {
-    padding: 3px 3px 0px 3px;
-    border-style: solid;
-    border-width: 2px;
-    border-color: gray;
-    background-color: lightyellow;
-}
-.tabeldetaliat th {
-    padding: 3px;
-    border-style: solid;
-    border-width: 2px;
-    border-color: gray;
-    background-color: darkblue;
-    color: white;
-    font-weight: bolder;
+.hidden {
+    display: none; /* or visibility: hidden; */
 }
 
+
+.tabeldetaliat td {
+    padding: 0px 3px 0px 3px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: gray;
+}
+
+
+.tabeldetaliat {
+    margin: 0px 5px 5px 5px;
+    border:2px solid gray;
+}
+
+.tabeldetaliat th {
+    padding: 3px;
+    /*border-color: red;
+    border-style: dashed;*/ /*does not work - overwritten by other class*/
+    background-color: darkblue;
+    color: white;
+    font-weight:bold;
+}
+
+.table-striped > tbody > tr:nth-child(odd) > td {
+    background-color:rgb(245, 245, 225);
+}
+
+.table-hover tbody tr:hover td {
+    background-color:aliceblue;
+}
+
+.table-hover tbody tr td:hover {
+    background-color:peachpuff;
+}
+
+.glyphicon-trash:hover {
+    /*background-color:red;*/
+    transform:translate(2px,1px)
+
+}
+.submit-with-icon {
+    background: transparent;
+    border: 0px;
+    padding: 0;
+    outline: 0;
+}
 
 .navbar {
     background-color: darkblue;
@@ -27,22 +62,77 @@
     font-weight: bolder;
 }
 
-
 .container {
     width:auto;
 }
 
-.nav-item {
-    /*border-radius: 30%;
-    background-color:darkslateblue;*/
-}
-
-.navitem-left-side {
+.navitem-right-side {
     background-color: blue;
-    float: right;
+    /*float: right;*/
 }
-
 
 .navbar-header {
-    background-color: cyan;
+    background-color: red;
 }
+
+/* =========== table and form page =========== */
+.container-detailed-table {
+    float: left; /*to appear on the same line with the form*/ 
+}
+
+.container-detailed-table .editable-td-div {
+    width:100%;
+}
+
+.editable-td .editable-td-span-tooltip {
+    display: none;
+}
+
+.editable-td .editable-td-span-tooltip-trigger {
+    width:100%;
+    cursor:help;
+}
+
+.editable-td .editable-td-span-tooltip-trigger:hover + .editable-td-span-tooltip {
+    display:inline;
+    /*position:relative;*/ /* relative to .tooltipTrigger - afisare in celula*/
+    position:absolute; /*afisare in exeteriorul celulel - dar langa aceasta*/
+    background-color:darkgray;
+    color:white;
+    /*left: 10px;*/ /*pentru cazul in care se doreste afisarea in celula*/
+    z-index:1;
+    border: 1px solid #ccc;
+    border-radius:5px;
+}
+
+
+.container-form-add {
+    /*background-color:darksalmon;*/
+    margin:0px 5px 5px 5px;
+    float:left;/*to appear on the same line with the table*/
+}
+
+/*
+.container-form-add form table td {
+    padding: 2px;
+}
+*/
+.container-form-add form fieldset {
+    border: 1px solid lightgrey;
+    padding: 5px;
+    margin: 2px;
+}
+
+.container-form-add form fieldset legend {
+    width:inherit;
+    padding: 0px 5px 0px 5px;
+    border-bottom:none;
+    font-size:medium;
+}
+
+.container-form-add form fieldset p label {
+    width:100px;
+    /*color: yellow;*/
+    font-weight:normal;
+}
+

@@ -3,6 +3,7 @@ from typing import List
 from sqlalchemy import Integer, String
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from typing import Optional
 import logging
 from chocodist.params import APPNAME
 
@@ -40,6 +41,7 @@ class Produs(db.Model):
     nume: Mapped[str] = mapped_column(String(40))
     id_producator: Mapped[int] = mapped_column(ForeignKey("producatori.id"), index=True)
     producator: Mapped['Producator'] = relationship(back_populates="produse")
+    cantitate_stoc: Mapped[Optional[int]] = mapped_column(default=0)
 
     def __repr__(self):
         return f"Produs({self.id}, {self.nume}, {self.producator})"

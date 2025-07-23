@@ -4,6 +4,7 @@
 
 {% block scripts %}
 {{ super() }}
+<script type="text/javascript" src="{{ url_for('static', filename='scripts/chocodist.js') }}"></script>
 {% endblock scripts %}
 
 {% block head %}
@@ -34,7 +35,7 @@
                     <li class="nav-item"><a href="{{ url_for('main.produse')}}">Produse</a></li>
 
                 </ul>
-                <ul class="nav navbar-nav navitem-left-side ms-lg-auto me-auto">
+                <ul class="nav navbar-nav navbar-right navitem-right-side">
                     <li class="nav-item"><a href="{{ url_for('main.producatori')}}">Log In</a></li>
                 </ul>
             </div>

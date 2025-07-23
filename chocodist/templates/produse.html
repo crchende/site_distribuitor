@@ -9,20 +9,68 @@
         <h1>{{ pagina.nume }}</h1>
     </header>
 
-    <table class="tabeldetaliat">
-        <tr>
-            <th>Nr.</th>
-            <th>Producator</th>
-            <th>Produs</th>
-        </tr>
-    {% set ns = namespace(i=1) %}
-    {% for p in produse %}
-        <tr>
-            <td>{{ ns.i }}</td>
-            <td>{{ p.producator.nume }}</td>
-            <td>{{ p.nume }}</td>
-        </tr>
-        {% set ns.i = ns.i + 1 %}
-    {% endfor %}
-    </table>
+    <div class="container-table-and-form">
+        <div class="container-form-add">
+            <div onclick="showHide(event)" aria-controls="add-product-form">Adauga produs &#9658;</div>
+            <form id="add-product-form" style="display: none;"  method="POST" action="{{url_for('main.produse')}}"> <!--name only used in browser, not sent to server-->
+                <fieldset class="border p-2">
+                    <!--<legend onclick="showHide(event)">Add Product</legend>-->
+                    <p>
+                        <label for="product_name">Produs</label>
+                        <input type="text" id="product_name" name="new_product_name" type="text" required pattern="[a-z,A-Z]+.*" />
+                    </p>
+                    <p>
+                        <label for="producer">Producator</label>
+                        <select name="producator" id="producer" type="number", required>
+                            <option value="">---</option>
+                            {% for p in producatori %}
+                                <option value={{ p.id }}>{{ p.nume }}</option>
+                            {% endfor %}
+                        </select>
+                    </p>
+                    <p>
+                        <label for="product_quantity">Cantitate</label>
+                        <input name="cantitate_stoc" id="product_quantity" type="text" value="0" required pattern="(^[1-9][0-9]*$)|^0$">
+                    </p>
+                    <p>
+                        <input type="submit" name="submit_add_product_form" value="Adauga"/>
+                        <input type="reset" value="Renunta"/>
+                        <!--<input type="button" value="Renunta" onclick="alert('Anulare actiune.\nApasati OK pentru anulare!'); window.location='/produse'"/>-->
+                        
+                    </p>
+                </fieldset>
+            </form>
+        </div>
+        <div class="container-detailed-table">
+            <table class="table-bordered table-striped table-hover tabeldetaliat">
+                <tr>
+                    <th>#</th>
+                    <th>Producator</th>
+                    <th class="editable-td">
+                        <div class="editable-td-span-tooltip-trigger">Produs</div>
+                        <span class="editable-td-span-tooltip">Click pentru a edita!</span>
+                    </th>
+                    <th class="editable-td">
+                        <div class="editable-td-span-tooltip-trigger">Cantitate Stoc</div>
+                        <span class="editable-td-span-tooltip">Click pentru a edita!</span>
+                    </th>
+                    <th>Sterge</th>
+                </tr>
+            {% set ns = namespace(i=1) %}
+            {% for p in produse %}
+                <tr>
+                    <td>{{ ns.i }}</td>
+                    <td>{{ p.producator.nume }}</td>
+                    <td>
+                        <div class="editable-td-div" contenteditable="true">{{ p.nume }}</div> <!--span nu-si extinde width-->
+                    </td>
+                    <td style="text-align:right; padding-right:10px;" contenteditable="true">{{ p.cantitate_stoc }}</td>
+                    <!--<button class="btn btn-default btn-xs"></button>-->
+                    <td style="text-align: center;"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></td>
+                </tr>
+                {% set ns.i = ns.i + 1 %}
+            {% endfor %}
+            </table>
+        </div>
+    </div>
 {% endblock page_content %}
