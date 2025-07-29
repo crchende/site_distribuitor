@@ -11,8 +11,9 @@
 
     <div class="container-table-and-form">
         <div class="container-form-add">
+            <!--style="display: none;" -->
             <div onclick="showHide(event)" aria-controls="add-product-form">Adauga produs &#9658;</div>
-            <form id="add-product-form" style="display: none;"  method="POST" action="{{url_for('main.produse')}}"> <!--name only used in browser, not sent to server-->
+            <form id="add-product-form" style="display: none;" method="POST" action="{{url_for('main.produse')}}"> <!--name only used in browser, not sent to server-->
                 <fieldset class="border p-2">
                     <!--<legend onclick="showHide(event)">Add Product</legend>-->
                     <p>
@@ -35,6 +36,7 @@
                     <p>
                         <input type="submit" name="submit_add_product_form" value="Adauga"/>
                         <input type="reset" value="Renunta"/>
+                        <input type="hidden" name="action" value="add">
                         <!--<input type="button" value="Renunta" onclick="alert('Anulare actiune.\nApasati OK pentru anulare!'); window.location='/produse'"/>-->
                         
                     </p>
@@ -61,12 +63,23 @@
                 <tr>
                     <td>{{ ns.i }}</td>
                     <td>{{ p.producator.nume }}</td>
-                    <td>
-                        <div class="editable-td-div" contenteditable="true">{{ p.nume }}</div> <!--span nu-si extinde width-->
-                    </td>
-                    <td style="text-align:right; padding-right:10px;" contenteditable="true">{{ p.cantitate_stoc }}</td>
+                        <!-- poate n-am nevoie de div ...
+                        <div class="editable-td-div" contenteditable="true" 
+                            action="modify" item-id="{{ p.id }}" item-attr="nume">{{ p.nume }}</div> --><!--daca folosesc span nu-si extinde width-->
+                    <td contenteditable="true" action="modify" type="text" item-id="{{p.id}}" item-attr="nume">{{p.nume}}</td>
+                    <!-- daca sterg continutul, nu voi mai putea da click pe zona editabile - de aceea este de recomandat un div -->
+                    <td style="text-align:right; padding-right:10px;" contenteditable="true" 
+                        action="modify" type="number" item-id="{{ p.id }}" item-attr="cantitate_stoc">{{p.cantitate_stoc}}</td>
                     <!--<button class="btn btn-default btn-xs"></button>-->
-                    <td style="text-align: center;"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></td>
+                    <td style="text-align: center;">
+                        <!--span class="glyphicon glyphicon-trash" aria-hidden="true"></span-->
+                        <form method="POST" onsubmit="return confirm('Produsul selectat va fi sters!')">
+                            <button type="submit" class="submit-with-icon" name="action" value="delete">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                <input type="hidden" name="item-id" value="{{ p['id'] }}">
+                            </button>
+                        </form>
+                    </td>
                 </tr>
                 {% set ns.i = ns.i + 1 %}
             {% endfor %}

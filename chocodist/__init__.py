@@ -163,6 +163,9 @@ si datele din fisierul csv: chocodist/date/dateinitiale/produse_producatori.csv
 '''    
 @app.cli.command()
 def db_init_producator_produse():
+    '''
+    Initializare baza de date be baza unor date initiale - fisier produse_pro
+    '''
     logger.info("Sterg toate tabelele inclusiv datele si le creez de la zero.")
     db.drop_all()
     db.create_all()
@@ -176,6 +179,8 @@ def db_init_producator_produse():
 
             for row in reader:
                 producator = row.pop('producator') # Numele producatorului din CSV
+                print(f"-{row['nume']}-")
+                print(row)
                 produs_ob = modele.Produs(**row) # obiect Produs
             
                 if producator not in toti_producatorii:
@@ -204,3 +209,22 @@ def db_creaza_tabele_din_modele():
     """
     db.create_all()
 
+
+#from flask import render_template
+#from . import main
+#from app import APPNAME
+
+#import logging
+#logger = logging.getLogger(APPNAME + "." +__name__)
+#logger.debug(f"Incarcare modul")
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    print(dir(e))
+    return render_template('404.html', APPNAME=APPNAME, e=e), 404
+
+    
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html', APPNAME=APPNAME, e=e), 500

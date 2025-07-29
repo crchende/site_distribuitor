@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, HiddenField
 from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
 from wtforms import ValidationError
 
@@ -9,6 +9,7 @@ class PostForm(FlaskForm):
     #Post de timp text simplu
     producer_name = StringField("Producator:", validators=[DataRequired()])
     #body = PageDownField("What's on your mind?", validators = [DataRequired()])
+    action = HiddenField(default="add") #<input type="hidden", name="action", value="adauga_producator">
 
     submit = SubmitField("Adauga", name="submit_add_producer_form",) 
     # '"Adauga" - the value; name - the key , name="submit_add_producer_form"

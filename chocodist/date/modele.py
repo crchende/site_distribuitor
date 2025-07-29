@@ -18,7 +18,6 @@ with app.app_context():
 este nevoie de app_context - si se foloseste ca mai sus
 '''
 
-
 ################################################################################
 # ORM - Object Relational Mapper
 ################################################################################

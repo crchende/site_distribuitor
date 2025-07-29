@@ -46,9 +46,13 @@
 
 .glyphicon-trash:hover {
     /*background-color:red;*/
-    transform:translate(2px,1px)
-
+    transform:translate(1px,1px)
 }
+.glyphicon-trash:active {
+    /*background-color:red;*/
+    transform:translate(1px,2px)
+}
+
 .submit-with-icon {
     background: transparent;
     border: 0px;
@@ -136,3 +140,11 @@
     font-weight:normal;
 }
 
+
+/*--------------- error box ---------------------*/
+div[class="error-container"] {
+    width:90%; 
+    font-family: 'Courier New', Courier, monospace; 
+    background: lightgray; 
+    padding: 4px;
+}
