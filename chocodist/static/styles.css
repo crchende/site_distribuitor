@@ -148,3 +148,25 @@ div[class="error-container"] {
     background: lightgray; 
     padding: 4px;
 }
+
+/*---------------flash messages------------------*/
+.flash-container {
+    width:50%; 
+    position:fixed;
+    margin-left:50%;
+    padding-right:5%;
+    /*background:lightcyan;*/
+    z-index:1;
+}
+
+/*
+# folosite din Bootstrap: https://getbootstrap.com/docs/4.0/components/alerts/
+.flash-container .alert-warning {
+    background-color:lightyellow;
+}
+
+.flash-container .alert-danger {
+    background-color:lightpink;
+    padding: 3px;
+}
+*/

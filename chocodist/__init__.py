@@ -224,6 +224,10 @@ def page_not_found(e):
     print(dir(e))
     return render_template('404.html', APPNAME=APPNAME, e=e), 404
 
+@app.errorhandler(400)
+def page_not_found(e):
+    print(dir(e))
+    return render_template('400.html', APPNAME=APPNAME, e=e), 400
     
 @app.errorhandler(500)
 def internal_server_error(e):

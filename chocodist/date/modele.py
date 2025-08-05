@@ -42,5 +42,15 @@ class Produs(db.Model):
     producator: Mapped['Producator'] = relationship(back_populates="produse")
     cantitate_stoc: Mapped[Optional[int]] = mapped_column(default=0)
 
+    # tratare problema duplicat nume pentru acelasi producator aici
+    # nu pare o idee buna - ar trebui sa incerc sa creez un obiect
+    # la creare - le verific pe celelalte si daca mai este unu cu acelasi nume
+    # pentru acelasi producator renunt ... - pare prea complex ...
+    #
+    # totusi - am validat ca se apeleaza constructorul si ca-l pot suprascrie
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        print("apel __init__ Produs", self)
+
     def __repr__(self):
         return f"Produs({self.id}, {self.nume}, {self.producator})"

@@ -1,13 +1,13 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, HiddenField
-from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
+from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo, NumberRange
 from wtforms import ValidationError
 
 #from flask_pagedown.fields import PageDownField
 
-class PostForm(FlaskForm):
+class ProducerAddForm(FlaskForm):
     #Post de timp text simplu
-    producer_name = StringField("Producator:", validators=[DataRequired()])
+    name = StringField("Producator:", validators=[DataRequired()])
     #body = PageDownField("What's on your mind?", validators = [DataRequired()])
     action = HiddenField(default="add") #<input type="hidden", name="action", value="adauga_producator">
 
@@ -22,3 +22,10 @@ class PostForm(FlaskForm):
     # ('csrf_token', 'IjZmYmRkYjAwNTJjYjIzOTRlZjZiMTI4NzcwYjI5MWZlMmRkZTMxMjEi.aH3jtQ.ECqWOWwNVY1ad5l4DRPRoAei6ZM'), 
     # ('producer_name', 'test'),                  # the variable name as no 'name' argument
     # ('submit_add_producer_form', 'Adauga')])    # name argument provided - will be used as key instead of submit var name
+
+class ProductModifyForm(FlaskForm):
+    name = StringField("Nume produs", validators=[DataRequired()])
+    producer_id = SelectField("Producator", choices=[(1, "Unu"), (2, "Doi")])
+    cantitate_stoc = StringField("Cantitate Stoc", validators=[NumberRange()])
+    submit = SubmitField("Modifica")
+    cancel = SubmitField("Renunta")

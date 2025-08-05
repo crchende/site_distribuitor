@@ -40,12 +40,20 @@ function showHide(event) {
     //console.log(controled_element)
     if(text_div.indexOf("►") >= 0) { //&#9658;
         console.log("fac vizibil")
-        event.target.innerHTML = "Adauga produs ▼" //&#9660;
+        if(aria_controls.substring("producer" >= 0)) {
+            event.target.innerHTML = "Adauga producator ▼" //&#9660;
+        } else {
+            event.target.innerHTML = "Adauga produs ▼" //&#9660;
+        }
         controled_element.style.display = "block"; //controled_element.style.visibility = "visible"
         
     } else if(text_div.indexOf("▼")) { //
         console.log("ascund")
-        event.target.innerHTML = "Adauga produs ►"
+        if(aria_controls.substring("producer" >= 0)) {
+            event.target.innerHTML = "Adauga producator ►" //&#9660;
+        } else {
+            event.target.innerHTML = "Adauga produs ►"
+        }
         controled_element.style.display = "none"; //controled_element.style.visibility = "hidden"
     }
 }
@@ -97,24 +105,31 @@ $(window).on("load", function(event) {
     //getCookie("modifica");
     //getCookie("sterge");
     
-    const form_adauga = document.getElementById('add-product-form');
-    //$('add-product-form')
-    console.log(form_adauga);
-    console.log(form_adauga.getAttribute('style'))
-
-    div_text = form_adauga.previousElementSibling;
-    console.log(div_text);
-    console.log(div_text.innerHTML)
-    
-    if(adauga == 1) {
-        //daca am adaugat un element, las formularul vizibil
-        //in urma adaugarii, se va primi un redirect cu un cookie care ne spune
-        //ca s-a adaugat un element
-        //div_text.innerHTML = "Adauga produs ▼" //&#9660;
-        //controled_element.style.display = "block"; //controled_element.style.visibility = "visible"
-        div_text.dispatchEvent(new Event('click'));
+    let form_adauga = document.getElementById('add-product-form')
+    if(form_adauga == null) {
+        form_adauga = document.getElementById('add-producer-form')
     }
-    
+
+    if(form_adauga == null) {
+        return; //nu avem pagina cu formular de adaugare
+    } else {
+        //$('add-product-form')
+        console.log(form_adauga);
+        console.log(form_adauga.getAttribute('style'))
+
+        div_text = form_adauga.previousElementSibling;
+        console.log(div_text);
+        console.log(div_text.innerHTML)
+        
+        if(adauga == 1) {
+            //daca am adaugat un element, las formularul vizibil
+            //in urma adaugarii, se va primi un redirect cu un cookie care ne spune
+            //ca s-a adaugat un element
+            //div_text.innerHTML = "Adauga produs ▼" //&#9660;
+            //controled_element.style.display = "block"; //controled_element.style.visibility = "visible"
+            div_text.dispatchEvent(new Event('click'));
+        }
+    }
     
 });
 
@@ -182,6 +197,7 @@ $('body').on('blur keydown', '[contenteditable]', function(event) {
                 }
             }
             
+            _this.data('orig', _this.data('before')) //am nevoie in caz ca am un duplicat de nume
             _this.data('before', _this.html()); //se salveaza noua valoare la cheia 'before': https://api.jquery.com/data/
             //metoda data are doua forme - cu un parametru - returneaza data de la cheie, cu doi parametrii
             //primul - cheia, al doilea valoarea
@@ -205,6 +221,9 @@ $('body').on('blur keydown', '[contenteditable]', function(event) {
             })
             .then(data => {
                 console.log("Rezultat modificare:", data);
+                if(_this.data('orig') == data && _this.attr('item-attr') == "nume") { //doar la nume conteaza duplicatul, nu si la cantitate stoc
+                    window.alert("Duplicat de nume, valoarea nu se va schimba!")
+                }
                 _this.html(data);
                 console.log("_this.html():", _this.html());
                 return data

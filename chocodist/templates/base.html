@@ -34,7 +34,7 @@
                     <li class="nav-item"><a href="{{ url_for('main.producatori')}}">Producatori</a></li>
                     <li class="nav-item"><a href="{{ url_for('main.produse')}}">Produse</a></li>
 
-                </ul>
+                </ul> 
                 <ul class="nav navbar-nav navbar-right navitem-right-side">
                     <li class="nav-item"><a href="{{ url_for('main.producatori')}}">Log In</a></li>
                 </ul>
@@ -45,8 +45,17 @@
 {% endblock navbar %}
 
 {% block content %}
+    <div class="flash-container">
     {% block flash_messages %}
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+    <div class="alert alert-{{category}}">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+    
     {% endblock flash_messages %}
+    </div>
 
     <section id="page_content">
     {% block page_content %}

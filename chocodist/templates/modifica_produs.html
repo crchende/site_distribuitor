@@ -1,0 +1,12 @@
+{% import "bootstrap/wtf.html" as wtf %}
+{% extends "base.html" %}
+
+{% block page_content %}
+<header>
+    <h1>Modificare produs</h1>
+    {{ request.args['id'] }}
+    <div style="width:40%">
+        {{ wtf.quick_form(form) }}
+    </div>
+</header>
+{% endblock %}
