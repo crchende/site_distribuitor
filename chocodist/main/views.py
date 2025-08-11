@@ -19,6 +19,12 @@ def index():
     logger.debug("/ - index")
     return render_template("index.html", APPNAME=APPNAME)
 
+@main.route("/login")
+def login():
+    logger.debug("/login")
+    return render_template("login.html", APPNAME=APPNAME)
+
+
 @main.route("/producatori", methods = ['GET', 'POST'])
 def producatori():
     
@@ -27,7 +33,7 @@ def producatori():
     if request.method == "POST":
         logger.debug(f"POST request action: {request.form.get('action')}")
         #logger.debug(f"POST request: {request.form}")
-        if request.form['action'] == "add":
+        if request.form['action'] == "add" and request.form.get('submit_add_producer_form'):
             logger.debug(f"form: {request.form.to_dict()}")
             p_info = {
                 'nume': request.form['name']
@@ -265,13 +271,76 @@ def produse():
 
 @main.route("/modifica-produs", methods = ['GET', 'POST'])
 def modifica_produs():
+    # fromularul pentru modificarea datelor produsului
     form = ProductModifyForm()
+    #with db.session.begin(): # nu merge aici cu with db.session.begin - nici nu merge sa foloses functii de librareie cu begin()
     p = ProdusCtrl.get_product(request.args['id'])
     form.name.data = p.nume
     producatori = ProducatorCtrl.get_producers_id_name()
     #print("producatori =", producatori)
-    form.producer_id.choices = [(p.id, p.nume) for p in producatori]
-    form.producer_id.data = 3
-    form.cantitate_stoc.data = p.cantitate_stoc
-    print(p.cantitate_stoc)
+    form.producer_id.choices = [(prd.id, prd.nume) for prd in producatori]
+    form.producer_id.data = f"{p.id_producator}"
+    #print(form.producer_id.data)
+    form.cantitate_stoc.data = str(p.cantitate_stoc)
+
+    print("form.name:               ", form.name) # val suprascrisa cu ce gasesc in obiect
+    print("form.cantitate_stoc.data:", form.cantitate_stoc.data) # desi are val corecta, nu se scrie in formular, ramane ce este completat acolo
+    print("form.cantitate_stoc:     ", form.cantitate_stoc) # valoarea din formular, nu cea setata mai sus pentru data
+
+
+    # daca formularul s-a submis - se proceseaza datele
+    if request.method == "POST":
+        logger.debug(f"Date formular modificare produs: {request.form.to_dict()}")
+        if request.form.get('cancel'):
+            return redirect(url_for('.produse'))
+        
+        if form.validate_on_submit():
+            '''
+            # daca am StringField - verificare pentru numar se poate face ca mai jos
+            # daca folosesc integer field - nu mai este nevoie de aceasta verificare
+            # dar am problema descrisa in forms.html - IntegerField nu se reactualizeaza
+            # la valoarea din obiect ci pastreaza ce a fost in formular
+            # - pentru cazul in care nu avem redirect - cum ar trebui sa avem dupa procesare post-ului
+            try:
+                int(request.form['cantitate_stoc'])
+                logger.debug(f"Datele din formular sunt valide. Produsul va fi actualizat!")
+            except ValueError as e:
+                logger.debug(f"Valoare invalida pentru Cantitate Stoc. Tastati un numar intreg!")
+                print(e, e.__class__)
+            '''
+            #ProdusCtrl.checkNameDuplicate(nume=request.form['name'], id_producator=request.form['producer_id'])
+            #with db.session.begin(): # eroare - exista deja o tranzactie pentru sesiune - trebuie sa foloses commit
+            if p.nume == request.form['name'] and \
+                p.id_producator == int(request.form['producer_id']):
+                if p.cantitate_stoc == int(request.form['cantitate_stoc']):
+                    logger.debug("Nu sunt schimbari pentru produs, datele din formular sunt cele initiale pentru produs!")
+                else:
+                    p.cantitate_stoc = request.form['cantitate_stoc']
+                    db.session.commit() # daca folosesc with, nu mai am nevoie de commit
+                return redirect(url_for('.produse'))
+            else:
+                # and p.nume != request.form['name']
+                p2 = db.session.scalar(select(Produs).where(Produs.nume == request.form['name'], Produs.id_producator == request.form['producer_id']))
+                if p2 is not None:
+                    flash("Nume duplicat pentru produs, mai exista un produs cu acelasi nume de la acelasi producator", category="danger")
+                    # nu fac redirect, voi lasa codul sa reincarce formularul
+                else:
+                    logger.debug(f"Datele din formular sunt valide. Produsul va fi actualizat!")
+                    flash(f"Produsul: {p.nume}, de la producatorul: {p.producator.nume} va fi modificat!", category="warning")
+                    p.nume = request.form['name']
+                    p.id_producator = request.form['producer_id']
+                    p.cantitate_stoc = request.form['cantitate_stoc']
+                    db.session.commit() # daca folosesc with, nu mai am nevoie de commit
+                    
+                    flash(f"Produsul a fost modificat: nume: {p.nume}, producator: {p.producator.nume}!", category="success")
+                    return redirect(url_for('.produse'))
+        else:
+            flash("Datele introduse in formular nu sunt valide. Produsul nu poate fi modificat", category="danger")
+            logger.error("Problema validare date din formular!")
+        
+
+
+    # altfel - se afiseaza formularul
+    print("AICI")
+    #form.process() - apelul strica formularul - datele initiale nu mai sunt completate
     return render_template("modifica_produs.html",  APPNAME=APPNAME, form=form)

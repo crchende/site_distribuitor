@@ -8,6 +8,14 @@ import logging
 
 logger = logging.getLogger(f"{APPNAME}.{__name__}")
 
+'''
+Am o problema cu functiile cu with, nu merg peste tot - in special acolo unde am selectat ceva
+
+Problema cea mai mare apare la modifica_produs - unde am nevoie de datele produsului pentru a
+popula formularul.
+Aici nu pot folosi with - primesc eroarea: sqlalchemy.exc.InvalidRequestError: A transaction is already begun on this Session.
+'''
+
 class ProdusCtrl:
     @classmethod
     def checkNameDuplicate(cls, **kwargs):
@@ -77,7 +85,10 @@ class ProdusCtrl:
             
     @classmethod
     def get_product(cls, product_id):
-        return db.session.get(Produs, product_id)
+        with db.session.begin():
+            p = db.session.get(Produs, product_id)
+        return p
 
-
-
+    @classmethod
+    def modifyProduct(cls, product, nume, id_prducator, cantitate_stoc):
+        pass

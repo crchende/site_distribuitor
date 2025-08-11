@@ -23,6 +23,13 @@
     border:2px solid gray;
 }
 
+/*
+.tabeldetaliat tr td {
+    padding: 2px;
+    margin:0px;
+}
+*/
+
 .tabeldetaliat th {
     padding: 3px;
     /*border-color: red;
@@ -42,6 +49,11 @@
 
 .table-hover tbody tr td:hover {
     background-color:peachpuff;
+}
+
+.glyphicon-trash {
+    margin-top: 1px;
+    padding-top: 0px;
 }
 
 .glyphicon-trash:hover {
@@ -76,7 +88,7 @@
 }
 
 .navbar-header {
-    background-color: red;
+    background-color:orangered;
 }
 
 /* =========== table and form page =========== */

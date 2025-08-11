@@ -36,7 +36,7 @@
 
                 </ul> 
                 <ul class="nav navbar-nav navbar-right navitem-right-side">
-                    <li class="nav-item"><a href="{{ url_for('main.producatori')}}">Log In</a></li>
+                    <li class="nav-item"><a href="{{ url_for('main.login')}}">Log In</a></li>
                 </ul>
             </div>
         </div>
@@ -49,6 +49,11 @@
     {% block flash_messages %}
     {% for category, message in get_flashed_messages(with_categories=true) %}
     <div class="alert alert-{{category}}">
+        <script>
+        setTimeout(function() { //acest cod face ca mesajele flash de tip succes sa dispara dupa 3 secunde
+        $('.alert-success').fadeOut('fast');
+        }, 7000); // <-- time in milliseconds
+         </script>
         <button type="button" class="close" data-dismiss="alert">&times;</button>
         {{ message }}
     </div>

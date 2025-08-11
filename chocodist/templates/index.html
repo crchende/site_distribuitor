@@ -2,7 +2,239 @@
 
 {% block page_content %}
 <header>
-    <h1>ChocoDist</h1>
+    <h1 id="top">ChocoDist</h1>
     <h3>Distribuim ciocolata</h3>
 </header>
+
+<article>
+    <section style="float:left; margin:5px; background-color:greenyellow">
+        Ne place mult ciocolata si vrem sa o facem disponibila pentru oricine-i place ciocolata!
+    </section>
+    <section style="float:left; margin:5px; background-color:greenyellow;">
+        Vrem sa ajutam cererea sa intalneasca oferta. 
+    </section>
+    <section style="clear:left; background-color:bisque; margin:5px; padding:3px">
+        <!--clear este necesar pentru a nu alinia linia la stanga din cauza foat:left ramas implicit, de mai sus-->
+        <a href="#cu-ce-ajutam">Cu ce ajutam noi!</a>
+    </section>
+        <section style="background-color: lightcyan; margin:5px; padding:3px">
+        <!--clear este necesar pentru a nu alinia linia la stanga din cauza foat:left ramas implicit, de mai sus-->
+        <a href="#delicatesuri-tehnice">Delicatesuri tehnice pentru cine doreste sa guste!</a>
+    </section>
+</article>
+
+<hr style="clear:left;"> <!--clear trebuia adaugat aici - in caz ce nu era adaugat mai sus  chiar daca era pentru elemente din interiorul altui bloc -->
+
+<article id="cu-ce-ajutam">
+    <section style=background-color:bisque;">
+        <h3 style="color:brown">Cu ce ajutam noi! (functionalitatile portalului)</h3>
+    </section>
+    <a href="#top">top</a>
+
+    <section>
+        <h3>1. Producatori</h3>
+        <h4>Tinem legatura cu producatori unul si unul, adevarati maestrii in arta ciocolatii!</h4>
+        <p>
+        Acestia pot fi vazuti in pagina <b>Producatori</b><br/>
+        Aici puteti:
+        <ul>
+            <li>Adauga    (<b>C</b>reate)</li>
+            <li>Vizualiza (<b>R</b>ead)</li>
+            <li>Modifica  (<b>U</b>pdate)</li>
+            <li>Sterge    (<b>D</b>elete)</li>
+
+        </ul>
+        </p>
+        <p>
+        Nu se pot sterge producatori care au produse. Un distribuitor se poate sterge doar daca nu are produse asociate.
+        </p>
+    </section>
+    
+    <section>
+        <h3>2. Produse</h3>
+        <h4>Va punem la dispozitie o gama de produse pentru cele mai capricioase gusturi!</h4>
+        <p>
+        Acestea pot fi vazuti in pagina <b>Produse</b><br/>
+        La fel ca si pentru producatori, angajatii nostrii pot actualiza lista. Ei pot:
+        <ul>
+            <li>Adauga    (<b>C</b>reate)</li>
+            <li>Vizualiza (<b>R</b>ead)</li>
+            <li>Modifica  (<b>U</b>pdate)</li>
+            <li>Sterge    (<b>D</b>elete)</li>
+
+        </ul>
+        </p>
+
+        <p>
+        Pagina este una interna si are ca scop gestiunea utilizatorilor.
+        </p>
+    </section>
+
+    <section>
+        <h4>Urmeaza:</h4>
+        <ul>
+            <li>REST-API pentru produse si pentru producatori</li>
+            <li>autentificare + roluri utilizator + continut specific rolului</li>
+            <li>comenzi de la noi catre producatori</li>
+            <li>comenzi de la clienti catre pentru noi</li>
+            <li>extindere baza de date - tabele pentru utilizatori si pentru comenzi</li>
+            <li>... si vom mai vedea pe parcurs ...</li>
+        </ul>
+    </section>
+
+    <footer>
+        <p style="font-family:'Courier New', Courier, monospace; font-size:x-small; padding:3px;">
+        Dupa implementarea functionalitatii de <b>Log In</b>, functionalitatile de actualizare a listei de produse si producatori vor fi disponibile doar angajatilor nostrii.
+        Clientii nostrii vor putea doar sa vada aceasta pagina.
+        </p>
+    </footer>
+    
+
+</article>
+
+<article id="delicatesuri-tehnice">
+    <section style="background-color:lightcyan;">
+        <h3>Delicatesuri tehnice!</h3</section>
+    <a href="#top">top</a>
+    <p>Vezi si README din GitHub - 'de adaugat link'</p>
+
+    <p style="background-color:azure; width:80%; font-size: x-small;">
+        Aplicatia acopera o varietate destul de mare de notiuni referitoare la Pyuthon + Flask, HTML, CSS si chiar JavaScript.
+        Toate sunt combinate pentru a oferi o pagina cu aspect placut, si cat mai usor si intuitiv de utilizat.
+        <br/>
+        Am enumerat ce poate fi observat din punct de vedere tehnic in cod.
+    </p>
+
+    <section>
+        <h4>Python & Flask</h4>
+        <ol>
+            <li>aplicatie flask
+                <ol>
+                    <li>entry point aplicatie - (main-ul): director 'chocodist' - prin fisierul __init__.py din acest director</li>
+                    <li>start aplicatie
+                        <p style="font-family: 'Courier New', Courier, monospace; font-size:x-small; width:50%; background-color: lightgray;">
+                            - cd director care contine chocodist<br>
+                            - pornire venv:       source .venv/bin/activate<br>
+                            - pornire aplicatie:  flask --app chocodist run --reload
+                              (reload - util la dezvoltare - se reporneste automat la fiecare modificare si salvare de fisiere python)
+
+                              sau
+
+                              gunicorn chocodist:app -b 127.0.0.1:8001
+                        </p>
+                    </li>
+                    <li>fisier de configurare in afara directorului chocodist - config.py din directorul care contine chocodist</li>
+                    <li>utilizare factory method pentru a crea aplicatia</li>
+                    <li>instantiere extensii Bootstrap si baza de date - 'db' (in afara factory method) si inregistrare cu alicatia in factory method.</li>
+                    <li>pregatire utilizare extensii mail si moment</li>
+                    <li>Structura cod pentru a permite extinderea
+                        <ul>
+                            <li>utilizare blueprint - deocamdata doar main, dar pe acelasi model se pot adauga blueprint-uri pentru alte parti ale aplicatiei - de exemplu pentru autentificare si pentru rest-api</li>
+                            <li>director static pentru resursele statice - imagini, script-uri</li>
+                            <li>director template pentru template-urile html - poate fi structurat pe subdirectoare specifice pe blueprint (pentru main si template-urile de eroare nu am creat subdirector)</li>
+                            <li>utilizare TEMPLATE-uri si biblioteca JINJA pentru a genera dinamic paginile HTML
+                                <ul>
+                                    <li>template - structura HTML + locuri marcate special &lbrace;&lbrace;...&rbrace;&rbrace; &lbrace;% ... %;&rbrace; unde se va adauga continut dinamic</li>
+                                    <li>definire sablon general pagina - base.html si extinderea acestuia in celelalte pagini html</li>
+                                    <li>marcare zone pagina cu &lbrace;% block &lt;nume bloc&gt; %&rbrace; si extindere / sprascriere blocul in alte fisiere 
+                                        (ex. blocurile declarate in base.html sunt utilizate in index.html si alte fisiere care extind base.html) 
+                                        (<a href="https://www.toptal.com/designers/htmlarrows/punctuation/">cod HTML caractere speciale)</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>utilizare blueprint pentru a structura aplicatia</li>
+                    <li>Implementare comenzi CLI ale aplicatiei: vizibile cu: flask --app chocodist --help</li>
+                    <li>Personalizare shell - fac disponibile in shell obiectu baza de date: 'db' si modelele - clasele prin care accesez tabelele din baza de date</li>
+                    <li>Tratare personalizata erori - pagini de eroare definite pentru diverse tipuri de erori</li>
+                    <li>Structurare aplicatie pe arhitectura Model-View-Controler
+                        <ul>
+                            <li>Model - date - baza de date si functiile de interactiune cu aceasta.</li>
+                            <li>View - fisiere view per blueprint, rute + functii view de tratare a cererilor</li>
+                            <li>Controller - procesare specifica - pentru a pastra modelele si functiile view compacte</li>
+                        </ul>
+                    </li>
+                    <li>end point - identificator pentru a asocia un URL la o functie view - folosit in url_for("blueprint.nume_functie_view")<br>
+                        <a href="https://stackoverflow.com/questions/19261833/what-is-an-endpoint-in-flask">detalii endpoint pe stackoverflow</a></li>
+                    <li>formulare flask - bibliotecat Flask-WTF (what-the-form) - main/forms.py
+                        <ul>
+                            <li>Campuri specifice StringField, IntegerField, SelectField, HiddenField etc.<br>
+                                <a href="https://wtforms.readthedocs.io/en/3.2.x/fields/#wtforms.fields.Field">documentatie Flask WTF campuri, validatori</a>
+                            </li>
+                            <li>Utilizare validatori - validare elemente formular - vezi link-ul de mai sus</li>
+                            <li>Securizare cu CSRF protection <a href="https://flask-wtf.readthedocs.io/en/1.2.x/">documentatie WTF CSRF</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        Formular definit explicit - in HTML - pentru adaugare produse - ofera flexibilitate dar este mai mult de lucru.
+                    </li>
+
+                </ol>
+            </li>
+            <li>Sqlalchemy si ORM penru date
+                <ol>
+                    <li>utilizare biblioteca <b>sqlalchemy</b> pentru lucru cu baza de date</li>
+                    <li>utilizare ORM (Object Relational Model) adica obiecte pentru tabelele din baza de date si interactiunea cu baza de date prin aceste obiecte - functionalitate pusa la dispozitie de sqlalchemy</li>
+                    <li>interogari SQL folosind obiectele, nu construite direct in SQL - interogarile SQL generate sunt afisate in loguri</li>
+                    <li>interogari cu join, where, order_by, having, external left join, etc.</li>
+                    <li>relatii intre obiecte - apar in obiecte dar nu si in tabele - in tabele am doar foreign-key (ex id_producator in tabela produse), in obiecte am si numele producatorului, iar in producatori, lista de produse</li>
+                    <li>constrangeri unicitate - pe anumite campuri</li>
+                    <li>nu am activat optiunea de stergere in cascada - nu pot sterge un producator care are produse asociate cu el</li>
+                </ol>
+            </li>
+            <li>logging</li>
+        </ol>
+
+        <h4>JavaScript</h4>
+        <ol>
+            <li>utilizare biblioteca 'jquery' care vine cu 'flask-bootstrap' pentru a identifica elemente si tratare evenimente</li>
+            <li>lucru cu string-uri</li>
+            <li>actualizare dinamica continut element HTML</li>
+            <li>Editare online - prin tratare evenimente tastare/click pe elementele HTML editabile (body contenteditable)</li>
+            <li>Incarcare </li>
+            <li>Utilizare AJAX + 'fetch' pentru actualiza doar elementele editabile, nu toata pagina</li>
+            <li>Analiza cookie-uri - pentru a pastra expandat formularul de adaugare cand se adauga produse - eveniment load referitor la fereastra</li>
+            <li>SHOW / HIDE formular adaugare prin click pe titlul formularului</li>
+            <li>Ascunde mesajele flash care indica operatiuni terminate cu succes dupa 3 secunde - script in base.html sectiunea de mesaje flash</li>
+        </ol>
+        
+        <h4>HTML</h4>
+        <ol>
+            <li>aspect dinamic al paginii - pastrare funtionaitate si aspect cat se poate de mult atat pe monitor cat si pe telefon - pagina se compacteaza pe ecrane mici cu impact cat mai mic in functionalitate si se expandeaza pe ecrane mari</li>
+            <li>meniu pagina cu navbar - cu ajutorl bootstrap - are mai multe sectiuni, se compacteaza daca fereastra este mica sau se expandeaza cand exista spatiu</li>
+            <li>mesaj ajutor la hover pe capul de tabel pentru produse - coloanele 'Produs' si 'cantitate stoc' - modificare forma inticator mouse</li>
+            <li>utilizare atribut 'contenteditable' pentru elementele pe care vereau sa le editez direct in pagina</li>
+            <li>formular explicit pentru adaugare de produs - cu verificari in browser bendficiind de HTML5 - mai trebuie tratata pertea de CSRF, care nu este tratata pentru formularul explicit</li>
+            <li>formulare explicite pentru stergere element</li>
+            <li>utilizare glypticon 'cos de gunoi' din bootstrap - pentru coloana cu actiuna de stergere</li>
+            <li>Tabele - cu alternanta culori linii si modificare fundal la hoover pe linie si pe celula</li>
+            <li>Liste - numerotate si nenumerotate</li>
+            <li>titlu pagina + pictograma pagina</li>
+            <li>sectiune heading - h</li>
+            <li>marcaje semantice article / section - cu functionalitate similara cu p/div dar probabil mai usor de urmarit avand legatura cu structura paginii</li>
+            <li>formatare per marcaj cu atributul style</li>
+            <li>bootstrap folosit - cel pus la dispozitie de flask-bootstrap: Flask-Bootstrap==3.3.7.1 (aug 2025) putin vechi - bootstrap are versiunea peste 5</li>
+        </ol>
+
+        <h4>CSS</h4>
+        <ol>
+            <li>fisier style.css in directorul static (<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes">ghid utilicare css de la MDN Mozilla Developer Network)</a>
+                <ol>
+                    <li>identificare dupa id element: #id: ex: #page_content</li>
+                    <li> -- nu am facut identificat dupa tag - este prea generica si nu ajuta</li>
+                    <li>identificare dupa clasa: .nume_clasa</li>
+                    <li>identificare dupa pseudoclase: ex: td:hover</li>
+                    <li>utilizare combinatori: descendenta: identificator_1 identificator_2 am elementul 2 in elementul 1 - nu neaparat direct</li>
+                    <li>utilizare combinator  de descendeta + next sibling pentru identificare: identificator_1 identificator_2 + identificator 3</li>
+                    <li>utilizare combinator child: identificator 1 &gt identificator_2</li>
+                    <li>utilizare atribute element pentru identificare: ex: div[class="nume clasa"]</li>
+                </ol>
+            </li>
+
+            <li>formatare inline - pe anumite componente - prin atributul style direct pe componenta</li>
+        </ol>
+
+    </section>
+</article>
+
 {% endblock %}

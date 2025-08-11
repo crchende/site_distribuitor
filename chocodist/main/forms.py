@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, HiddenField
-from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo, NumberRange
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, HiddenField, IntegerField
+from wtforms.validators import DataRequired, InputRequired, Length, Email, Regexp, EqualTo, NumberRange
 from wtforms import ValidationError
 
 #from flask_pagedown.fields import PageDownField
@@ -24,8 +24,17 @@ class ProducerAddForm(FlaskForm):
     # ('submit_add_producer_form', 'Adauga')])    # name argument provided - will be used as key instead of submit var name
 
 class ProductModifyForm(FlaskForm):
-    name = StringField("Nume produs", validators=[DataRequired()])
-    producer_id = SelectField("Producator", choices=[(1, "Unu"), (2, "Doi")])
-    cantitate_stoc = StringField("Cantitate Stoc", validators=[NumberRange()])
+    name = StringField("Nume produs", validators=[DataRequired(message="Este necesar sa introduceti numele produsului!")])
+    producer_id = SelectField("Producator", choices=[])
+    #cantitate_stoc = StringField("Cantitate Stoc", validators=[NumberRange(message="Introduceti o valoare numerica pentru cantitate stoc!")])
+    #cantitate_stoc = StringField("Cantitate Stoc", validators=[DataRequired(message="Introduceti un numar intreg pentru cantitate stoc!")])
+    cantitate_stoc = IntegerField("Cantitate Stoc", validators=[DataRequired(message="Introduceti un numar intreg pentru cantitate stoc!")])
+    # IntegerField ramane cu valoarea completata in formular dupa un submit care nu face nimic
+    # Atat numele (StringField) cat si producer_id (SelectField) se seteaza la valorile citite pentru produs 
+    # - vezi view-ul modifica_produs
+    # IntegerField - pare sa aiba un bug.
+    # Pastrez totusi IntegerField, se face validare si in Browser - cu HTML5 - faptul ca este completat si este numar
+    # Cel mai probabil, in varianta cu functionalitatea de modificare implementata - modific produsul si redirectionez catre produse
+    # nu o sa apara problema care se vede cand nu exista aceasta functionalitate si la submit, se reincarca formularul din nou
     submit = SubmitField("Modifica")
     cancel = SubmitField("Renunta")
