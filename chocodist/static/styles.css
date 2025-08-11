@@ -89,6 +89,13 @@
 
 .navbar-header {
     background-color:orangered;
+    padding-left:6px;
+    padding-right:1px;
+}
+
+.navbar-header .navbar-brand {
+    color: palegreen;
+    margin-left:4px;
 }
 
 /* =========== table and form page =========== */
