@@ -63,16 +63,11 @@
                 <tr>
                     <td>{{ ns.i }}</td>
                     <td><a href="{{url_for('main.modifica_produs', id=p.id)}}">{{ p.producator.nume }}</td>
-                        <!-- poate n-am nevoie de div ...
-                        <div class="editable-td-div" contenteditable="true" 
-                            action="modify" item-id="{{ p.id }}" item-attr="nume">{{ p.nume }}</div> --><!--daca folosesc span nu-si extinde width-->
                     <td contenteditable="true" action="modify" type="text" item-id="{{p.id}}" item-attr="nume">{{p.nume}}</td>
-                    <!-- daca sterg continutul, nu voi mai putea da click pe zona editabile - de aceea este de recomandat un div -- merge si fara div-->
                     <td style="text-align:right; padding-right:10px;" contenteditable="true" 
                         action="modify" type="number" item-id="{{ p.id }}" item-attr="cantitate_stoc">{{p.cantitate_stoc}}</td>
                     <!--<button class="btn btn-default btn-xs"></button>-->
                     <td style="text-align: center;">
-                        <!--span class="glyphicon glyphicon-trash" aria-hidden="true"></span-->
                         <form method="POST" onsubmit="return confirm('Produsul selectat va fi sters!')">
                             <button type="submit" class="submit-with-icon" name="action" value="delete">
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>

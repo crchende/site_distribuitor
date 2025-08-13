@@ -28,8 +28,7 @@ bootstrap = Bootstrap()
 mail = Mail()
 moment = Moment()
 
-# Functie factory  - fabrica care va crea aplicatia, o va configura si va 
-# intializa subdiviziunile aplicatiei
+# Factory method - creates the WEB app and connects to it all its components
 def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
@@ -39,16 +38,13 @@ def create_app(config_name):
     mail.init_app(app)
     #moment.init_app(app)
 
-    # Acest apel creaza engine-ul / conexiunea la baza de date
-    # Informatiile de conectare sunt preluate din configuratia importata din 
-    # fisierul config
+    # create the engine - db connection - using the URL from app config
     db.init_app(app)
-    
-    # de adaugat mai jos blueprint-uri (subdiviziuni ale aplicatiei)
-    # rute
-    # pagini de eroare specifice
+
+    # app blueprints (app subdivisions / modules, each one specialized in a speciffic area)
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+    
     '''
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
@@ -67,16 +63,16 @@ def make_shell_context():
     return dict(db = db, modele = modele)
 
 
-# Adaugare parametrii la comenzile cli cu click
+# Command line params with click library
 # flask --app chocodist cmd-arg1 --help # afisare help din linia de comanda
 @app.cli.command()
 @click.argument("arg1")
 @click.option("--repeta", default=1, help="de cate ori sa afiseze arg1")
 def cmd_arg1(repeta, arg1):
     """
-    Comanda cli:            cmd-arg1 
-    Parametrii obligatorii: arg1 - argument obligatoriu pentru comanda cli 
-    Parametrii optionali:   repeta - de cate ori se afiseaza arg1 
+    CLI command:            cmd-arg1 
+    Required params: arg1 - argument obligatoriu pentru comanda cli 
+    Optional parameters:  - repeta - how many times to show arg
     """
     print(f"afisare {arg1} de {repeta} ori")
     for i in range(repeta):
@@ -107,17 +103,6 @@ def db_engine_afiseaza_tabele():
         print(el)
     print("]")
 
-
-
-
-'''
-# Rezultat executie comanda (cu baza de date doar cu datele initiale)
-[2025-07-05 23:58:27,188]: DEBUG: ChocoDist: <module>: Incarcare configuratie
-[2025-07-05 23:58:27,195]: DEBUG: ChocoDist: <module>: Aplicatia a fost creata.
-Interogare producatori: SELECT producatori.id, producatori.nume 
-FROM producatori
-[Producator(1, Poiana), Producator(2, Kandia), Producator(3, Kandia"), Producator(4, Milka)]
-'''
 @app.cli.command()
 def db_listare_producatori():
     q = select(modele.Producator)
@@ -125,14 +110,6 @@ def db_listare_producatori():
     rez = db.session.scalars(q).all()   # scalar in loc de execute - pentru a-mi intoarce doar elementul nu un tuplu cu acel element
     print(rez)
 
-
-"""
-# Rezultat executie comanda (cu baa de date doar cu datele initiale)
-flask --app chocodist db-afiseaza-tabele
-25-05-29 23:42:42: DEBUG: ChocoDist: <module>: Incarcare configuratie
-[2025-05-29 23:42:42,163] DEBUG in __init__: Aplicatia a fost creata.
-25-05-29 23:42:42: INFO: ChocoDist: db_afiseaza_tabele: q_lst: [('model_producatori',), ('model_produse',)]
-"""
 @app.cli.command()
 def sqlite_afiseaza_tabele():
     q = text("SELECT name FROM sqlite_master WHERE type='table'")
@@ -156,10 +133,12 @@ def execunittest():
     unittest.TextTestRunner(verbosity=2).run(tests)
 
 '''
-Initializare baza de date cu tabelele
+CLI command to initialize the database.
+Tables:
  - producatori
  - produse
-si datele din fisierul csv: chocodist/date/dateinitiale/produse_producatori.csv
+will be created and initialized with info from the csv file: 
+ - chocodist/date/dateinitiale/produse_producatori.csv
 '''    
 @app.cli.command()
 def db_init_producator_produse():
@@ -210,15 +189,10 @@ def db_creaza_tabele_din_modele():
     db.create_all()
 
 
-#from flask import render_template
-#from . import main
-#from app import APPNAME
 
-#import logging
-#logger = logging.getLogger(APPNAME + "." +__name__)
-#logger.debug(f"Incarcare modul")
-
-
+#######################################
+# Custom Error Handlers
+#######################################
 @app.errorhandler(404)
 def page_not_found(e):
     print(dir(e))
