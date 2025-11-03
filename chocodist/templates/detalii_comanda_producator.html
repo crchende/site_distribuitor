@@ -1,0 +1,32 @@
+{% extends "base_simplu.html" %}
+
+{% block page_content %}
+<p style="margin-bottom:50px;">Detalii comanda la producator</p>
+<div style="display:inline-block;">
+    <p style="text-align:center; padding-left:10px;margin-bottom:20px;">Comanda: Nr.: <b>{{ info_comanda['id_comanda'] }}</b> / {{ info_comanda['data_comanda'] }} / <b>{{ info_comanda['nume_producator'] }}</b> </p>
+    {% set ns = namespace(i=1) %}
+    <table style="width:17cm" class="table-bordered table-striped table-hover tabeldetaliat">
+        <tr>
+            <th>Nr.</th>
+            <th>Denumire produs</th>
+            <th>Cantitate</th>
+            <th>Pret Unitar</th>
+            <th>Pret</th>
+        </tr>
+        {% for articol in info_comanda['continut_comanda'] %}
+        <tr>
+            <td>{{ ns.i }}</td>
+            <td>{{ articol[0] }}</td>
+            <td style="text-align: center;">{{ articol[1] }}</td>
+            <td style="text-align: center;">{{ articol[2] }}</td>
+            <td style="text-align: right;">{{ articol[3] }}</td>
+        </tr>
+         {% set ns.i = ns.i + 1 %}
+        {% endfor %}
+    </table>
+    <hr>
+    <p style="text-align:end">Total: {{ info_comanda['total_comanda'] }}</p>
+</div>
+
+
+{% endblock %}

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, HiddenField, IntegerField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, HiddenField, IntegerField, SelectMultipleField
 from wtforms.validators import DataRequired, InputRequired, Length, Email, Regexp, EqualTo, NumberRange
 from wtforms import ValidationError
 
@@ -29,6 +29,7 @@ class ProductModifyForm(FlaskForm):
     #cantitate_stoc = StringField("Cantitate Stoc", validators=[NumberRange(message="Introduceti o valoare numerica pentru cantitate stoc!")])
     #cantitate_stoc = StringField("Cantitate Stoc", validators=[DataRequired(message="Introduceti un numar intreg pentru cantitate stoc!")])
     cantitate_stoc = IntegerField("Cantitate Stoc", validators=[DataRequired(message="Introduceti un numar intreg pentru cantitate stoc!")])
+    pret_unitar = IntegerField("Pret Unitar", validators=[DataRequired(message="Introduceti pretul unitar pe produs!")])
     # IntegerField ramane cu valoarea completata in formular dupa un submit care nu face nimic
     # Atat numele (StringField) cat si producer_id (SelectField) se seteaza la valorile citite pentru produs 
     # - vezi view-ul modifica_produs
@@ -36,5 +37,6 @@ class ProductModifyForm(FlaskForm):
     # Pastrez totusi IntegerField, se face validare si in Browser - cu HTML5 - faptul ca este completat si este numar
     # Cel mai probabil, in varianta cu functionalitatea de modificare implementata - modific produsul si redirectionez catre produse
     # nu o sa apara problema care se vede cand nu exista aceasta functionalitate si la submit, se reincarca formularul din nou
+    locatie = SelectMultipleField("Locatie", choices=[])
     submit = SubmitField("Modifica")
     cancel = SubmitField("Renunta")

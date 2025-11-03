@@ -1,0 +1,26 @@
+[
+    {
+        "produs": "Ciocolata cu lapte",
+        "pret": 53,
+        "disponibil": 18,
+        "orase": ["Bucuresti"]
+    },
+    {
+        "produs": "Ciocolata cu fructe de padure",
+        "pret": 55,
+        "disponibil": 3,
+        "orase": ["Bucuresti", "Cluj Napoca"]
+    },
+    {
+        "produs": "Ciocolata cu oreo",
+        "pret": 45,
+        "disponibil": 1,
+        "orase": ["Brasov", "Suceava"]
+    },
+    {
+        "produs": "Ciocolata cu caramel sarat",
+        "pret": 45,
+        "disponibil": 15,
+        "orase": ["Suceava"]
+    }
+]

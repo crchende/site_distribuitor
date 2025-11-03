@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% set pagina = namespace(nume="Produse") %}
+
+{% block title %} {{ super() }} {{ pagina.nume }} {% endblock title %}
+
+{% block page_content %}
+    <header>
+        <h1>{{ pagina.nume }}</h1>
+    </header>
+    <div class="container-table-and-form">
+        <div class="container-form-add">
+            <!--style="display: none;" -->
+            <div onclick="showHide(event)" aria-controls="add-form">Adauga oras &#9658;</div>
+            <form id="add-form" style="display: none;" method="POST" action="{{url_for('main.locatie')}}"> <!--name only used in browser, not sent to server-->
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <fieldset class="border p-2">
+                    <!--<legend onclick="showHide(event)">Add ...</legend>-->
+                    <p>
+                        <label for="name">Oras</label>
+                        <input type="text" id="name" name="name" type="text" required pattern="[a-z,A-Z]+.*" />
+                    </p>
+                    <p>
+                        <input type="submit" name="submit_add_form" value="Adauga"/>
+                        <input type="reset" value="Renunta"/>
+                        <input type="hidden" name="action" value="add">
+                        <!--<input type="button" value="Renunta" onclick="alert('Anulare actiune.\nApasati OK pentru anulare!'); window.location='/produse'"/>-->
+                    </p>
+                </fieldset>
+            </form>
+        </div>
+        <div class="container-detailed-table">
+            <table class="table-bordered table-striped table-hover tabeldetaliat">
+                <tr>
+                    <th>#</th>
+                    <th class="editable-td">
+                        <div class="editable-td-span-tooltip-trigger">Oras</div>
+                        <span class="editable-td-span-tooltip">Click pentru a edita!</span>
+                    </th>
+                    <th>Sterge</th>
+                </tr>
+            {% set ns = namespace(i=1) %}
+            {% for x in orase %}
+                <tr>
+                    <td>{{ ns.i }}</td>
+                    <td contenteditable="true" action="modify" type="text" item-id="{{x.id}}" item-attr="nume">{{x.nume}}</td>
+                    <!--<td style="text-align:right; padding-right:10px;" contenteditable="true" 
+                        action="modify" type="number" item-id="{{ x.id }}" item-attr="cantitate_stoc">{{ x.numar_produse }}</td>-->
+                    <!--<button class="btn btn-default btn-xs"></button>-->
+                    <td style="text-align: center;">
+                        <form method="POST" onsubmit="return confirm('Orasul selectat va fi sters!')">
+                            <button type="submit" class="submit-with-icon" name="action" value="delete">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                <input type="hidden" name="item-id" value="{{ x['id'] }}">
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% set ns.i = ns.i + 1 %}
+            {% endfor %}
+            </table>
+        </div>
+    </div>
+{% endblock %}

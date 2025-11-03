@@ -1,14 +1,18 @@
 from . import main
+import os, json
 from flask import current_app, render_template, request, url_for, redirect, flash
 from flask import make_response
 from sqlalchemy import select, func, exc
 from chocodist.date.db import db
-from chocodist.date.modele import Producator, Produs
-from chocodist.params import APPNAME
+from chocodist.date.modele import Producator, Produs, Oras
+from chocodist.params import APPNAME, basedir
 
 from .forms import ProducerAddForm, ProductModifyForm
 from .producator_ctrl import ProducatorCtrl
 from .produs_ctrl import ProdusCtrl
+from .oras_ctrl import OrasCtrl
+from .generare_comanda_producator_ctrl import ComandaProducatorCtrl
+#from .obj_ctrl import ObjCtrl
 
 import logging
 
@@ -37,7 +41,7 @@ def producatori():
                 'nume': request.form['name']
             }
             #print("Inainte de adaugare")
-            r = ProducatorCtrl.addNewProducer(**p_info)
+            r = ProducatorCtrl.addNew(**p_info)
             if r[0]:
                 flash(f"Producatorul: {request.form['name']}, a fost adaugat", category="success")
             else:
@@ -49,6 +53,8 @@ def producatori():
 
         elif request.form['action'] == 'delete':
             logger.debug(f"form: {request.form.to_dict()}")
+            ProducatorCtrl.delObj(request.form['item-id'])
+            """
             try:
                 with db.session.begin():
                     p = db.session.get(Producator, request.form['item-id'])
@@ -57,6 +63,7 @@ def producatori():
                 flash(f"Producatorul: {p.nume}, a fost sters!", category='success')
             except exc.IntegrityError:
                 flash(f"Producatorul {p.nume} nu poate fi sters. Are produse asociate!", category="danger")
+            """
 
         elif request.form['action'] == "modify":
             logger.debug(f"form: {request.form.to_dict()}")
@@ -66,7 +73,7 @@ def producatori():
             p_new_val = request.form['new-value']
             p_attr = request.form['item-attr']
 
-            ret = ProducatorCtrl.modifyProducerAttr(p_id, p_new_val)
+            ret = ProducatorCtrl.modifyAttr(p_id, p_new_val)
             return ret[1]
         else:
             logger.debug(f"POST page /producatori ... but not add new / modify / delete ...")
@@ -101,14 +108,16 @@ def produse():
         logger.debug(f"POST request action: {request.form.get('action')}")
 
         if request.form['action'] == "add":
+            # Afisare continut formular. Pentru multislect to_dict da doar prima valoare
             logger.debug(f"form: {request.form.to_dict()}")
+            logger.debug(f'locatie: {request.form.getlist("locatie")}')
             p_info = {
                 'nume': request.form['new_product_name'],
                 'id_producator': request.form['producator'],
                 'cantitate_stoc': request.form['cantitate_stoc'],
             }
 
-            r = ProdusCtrl.addNewProduct(**p_info)
+            r = ProdusCtrl.addNewProduct(lst_locatii = request.form.getlist("locatie"), **p_info,)
             if r[0] == False:
                 flash(f"Produsul: {r[1]['nume']}, de la producatorul: {r[1]['producator']} exista deja!", category='danger')
             else:
@@ -121,10 +130,11 @@ def produse():
 
         elif request.form['action'] == 'delete':
             logger.debug(f"form: {request.form.to_dict()}")
-            with db.session.begin():
-                p = db.session.get(Produs, request.form['item-id'])
-                db.session.delete(p)
-                flash(f"Produsul: {p.nume}, a fost sters!", category='success')
+            ret = ProdusCtrl.deleteProduct(request.form['item-id'])
+            if ret[0]:
+                flash(f"Produsul: {ret[1]}, a fost sters!", category='success')
+            else:
+                flash(f"Produsul {ret[1]} nu poate fi sters. Este adaugat in comenzi!", category="danger")
 
         elif request.form['action'] == "modify":
             logger.debug(f"form: {request.form.to_dict()}")
@@ -147,12 +157,14 @@ def produse():
             return redirect(url_for('.produse')) # name full: main.producatori or relative .producator
 
     q = select(Produs).join(Producator).order_by(Producator.nume)
+    #logger.debug("q = " + str(q))
 
-    logger.debug("q = " + str(q))
     lst_prod = db.session.scalars(q).all()
-
     lst_producatori = db.session.scalars(select(Producator)).all()
-    return render_template("produse.html", APPNAME=APPNAME, produse=lst_prod, producatori=lst_producatori)
+    orase = db.session.execute(select(Oras.id, Oras.nume).order_by(Oras.nume)).all()
+    #logger.debug(f"Orase = {orase}")
+
+    return render_template("produse.html", APPNAME=APPNAME, produse=lst_prod, producatori=lst_producatori, orase=orase)
 
 @main.route("/modifica-produs", methods = ['GET', 'POST'])
 def modifica_produs():
@@ -160,45 +172,138 @@ def modifica_produs():
     # BUG in WTF - for IntegerField, if the form remains on the screen - e.g. duplicate name, the value cantitate_stoc 
     # will remain the one in the field, not the one in DB, even below it is set: form.cantitate_stoc.data = ...
     form = ProductModifyForm()
-    p = ProdusCtrl.getProductInfo(request.args['id'])
-    form.name.data = p['nume']
-    producatori = ProducatorCtrl.get_producers_id_name()
-    form.producer_id.choices = [(prd.id, prd.nume) for prd in producatori]
-    form.producer_id.data = str(p['id_producator'])
-    form.cantitate_stoc.data = str(p['cantitate_stoc'])
+
+    ProdusCtrl.initModifyForm(form, request.args['id'])
 
     # process the info in the form - if SUBMIT
     if request.method == "POST":
-        logger.debug(f"Date formular modificare produs: {request.form.to_dict()}")
+        logger.debug(f"Date formular modificare produs: {request.form.to_dict()}") # afiseaza doar o locatie
+        logger.debug(f"locatiile trimise prin formular: {request.form.getlist('locatie')}")
+        #logger.debug(f"locatiile din obiectul produs:   {p_obj_locatii}")
+
         if request.form.get('cancel'):
             return redirect(url_for('.produse'))
         
-        if form.validate_on_submit():
-            if p['nume'] == request.form['name'] and \
-                p['id_producator'] == int(request.form['producer_id']):
-                if p['cantitate_stoc'] == int(request.form['cantitate_stoc']):
-                    logger.debug("Nu sunt schimbari pentru produs, datele din formular sunt cele initiale pentru produs!")
-                else:
-                    ProdusCtrl.modifyProduct(id_product=request.args['id'], nume=None, id_producator=None, cantitate_stoc=request.form['cantitate_stoc'])
-                    flash(f"Modificat cantitate stoc de la: {p['cantitate_stoc']} la {request.form['cantitate_stoc']} pentru produsul: {p['nume']} de la producatorul: {p['producator']}", category="success")
-
-                return redirect(url_for('.produse'))
-            else:
-                m_info =  ProdusCtrl.modifyProduct(id_product=request.args['id'], \
-                                            nume=request.form['name'], \
-                                            id_producator=request.form['producer_id'], \
-                                            cantitate_stoc=request.form['cantitate_stoc'])
-
-                if m_info[0] == True:
-                    flash(f"Produsul:   {p['nume']}, {p['producator']} va fi modificat!", category="warning")
-                    flash(f"Produsul a fost modificat: {m_info[1][0]}, {m_info[1][1]}, cantitate: {m_info[1][2]}", category="success")
-                    return redirect(url_for('.produse'))
-                else:
-                    flash(f"Nume duplicat pentru produs, mai exista un produs cu acelasi nume de la: {m_info[1][1]}!", category="danger")
-                    # form data problems - keep the form on the screen
-        else:
-            flash("Datele introduse in formular nu sunt valide. Produsul nu poate fi modificat", category="danger")
-            logger.error("Problema validare date din formular!")
+        ret = ProdusCtrl.analysisAndModifyProduct(form, request.form, request.args)
+        if ret == "redirect":
+            return redirect(url_for('.produse'))
         
     # show the form - for get or if no redirect above (e.g. duplicate product case)
     return render_template("modifica_produs.html",  APPNAME=APPNAME, form=form)
+
+
+@main.route("/locatie", methods = ['GET', 'POST'])
+def locatie():
+    #ObjCtrl.set_obj(Oras)
+    response = ""
+    if request.method == "POST":
+        logger.debug(f"POST request action: {request.form.get('action')}")
+        logger.debug(f"POST request: {request.form}")
+        if request.form['action'] == "add" and request.form.get('submit_add_form'):
+            logger.debug(f"form: {request.form.to_dict()}")
+            p_info = {
+                'nume': request.form['name']
+            }
+            #print("Inainte de adaugare")
+            r = OrasCtrl.addNew(**p_info)
+            #r = OrasCtrl.addNew(**p_info)
+            print(r)
+            if r[0]:
+                flash(f"Orasul: {request.form['name']}, a fost adaugat", category="success")
+            else:
+                logger.error(f"Orasul request.form['name'] exista deja: {r[1]}")
+                flash(f"Orasul: {request.form['name']}, nu poate fi adaugat! Exista deja!", category="danger")
+            
+            response = make_response(redirect(url_for('.locatie')));
+            response.set_cookie('adauga', value="1", max_age = 1);
+        
+        elif request.form['action'] == 'delete':
+            logger.debug(f"form: {request.form.to_dict()}")
+            try:
+                with db.session.begin():
+                    x = db.session.get(Oras, request.form['item-id'])
+                    #if p.produse = []:
+                    db.session.delete(x)
+                flash(f"Orasul: {x.nume}, a fost sters!", category='success')
+            except exc.IntegrityError:
+                flash(f"Producatorul {x.nume} nu poate fi sters. Are produse asociate!", category="danger")
+        
+        elif request.form['action'] == "modify":
+            logger.debug(f"form: {request.form.to_dict()}")
+            #return(request.form['new-value'])
+            logger.debug(f"form: {request.form.to_dict()}")
+            x_id = request.form['item-id']
+            x_new_val = request.form['new-value']
+            #x_attr = request.form['item-attr']
+
+            ret = OrasCtrl.modifyAttr(x_id, x_new_val)
+            return ret[1]
+        
+        else:
+            logger.debug(f"POST page /producatori ... but not add new / modify / delete ...")
+            logger.debug(f"POST request. form: {request.form}")
+            #return(request.form['new-value'])
+        #logger.debug(f"request.form: {request.form}")
+        logger.debug("POST processing - done. Doing a redirect (helps for page reload, will not resubmit the form.)")
+
+        if response != "":
+            return response
+        else:
+            return redirect(url_for('.locatie')) # name full: main.locatie or relative .locatie
+
+    logger.debug(f"GET request. pagina: {url_for('.locatie')}")
+    #count_products = func.count(Produs.id.distinct()).label(None)
+    count_products = func.count(Produs.id).label(None) # here it works the same as with distinct
+    #q = select(Producator.id, Producator.nume, count_products).join(Producator.produse, isouter=True).order_by(Producator.nume).group_by(Producator) # join on objects link
+    #print("q = ", q)
+    #q =  SELECT producatori.id, producatori.nume, count(produse.id) AS count_1 
+    #FROM producatori LEFT OUTER JOIN produse ON producatori.id = produse.id_producator GROUP BY producatori.id, producatori.nume ORDER BY producatori.nume
+
+    q = select(Oras.id, Oras.nume)
+    print(q)
+    
+    lst_orase_count_tip_produse = db.session.execute(q).all()
+    logger.debug(f"id si nume producator si nr produse: {lst_orase_count_tip_produse}")
+    return render_template("locatie.html", APPNAME=APPNAME, orase=lst_orase_count_tip_produse)
+
+@main.route("/generare_comanda_producator", methods = ['GET', 'POST'])
+def generare_comanda_producator():
+    q = select(Producator).order_by(Producator.nume)
+    #producatori = db.session.execute(q).all() - lista tupluri, cu un singur element in acest caz
+    #print("producatori - cu execute", producatori)
+    producatori = db.session.scalars(q).all() # lista obiecte
+    #print("p_s:", p_s)
+    selectat = "---"
+    oferta = []
+    id_selectat = None
+
+    if request.method == "POST":
+        if request.form.get('selecteaza-producator'):
+            obj = db.session.get(Producator, request.form['producator']) # trimit din formular ID-ul producatorului
+            if obj != None:
+                selectat = obj.nume
+                id_selectat = obj.id
+                oferta = ComandaProducatorCtrl.getProducerOffer(selectat)
+                #return redirect(url_for('.cumparare_produse', id_selectat=id_selectat, selectat=selectat)) # name full: main.cumparare_produse
+        if request.form.get('comanda-produse'):
+            print(request.form) 
+            flash(f"Comanda la producatorul {request.form['producator']} a fost trimisa!", category="success")
+            ComandaProducatorCtrl.addProducerOrder(request.form)
+               
+
+    return render_template("generare_comanda_producator.html", APPNAME=APPNAME, producatori=producatori, id_selectat=id_selectat, selectat=selectat, oferta=oferta)
+
+@main.route("/comenzi_la_producator", methods = ['GET', 'POST'])
+def comenzi_la_producator():
+    comenzi = ComandaProducatorCtrl.getAllOrders()
+    return render_template("comenzi_la_producator.html", APPNAME=APPNAME, comenzi=comenzi)
+
+@main.route("/detalii_comanda", methods=['GET'])
+def detalii_comanda():
+    info_cmd = ComandaProducatorCtrl.getOrderDetails(request.args['id'])
+    logger.debug(f"Informatii detaliate despre comanda: {info_cmd}")
+    return render_template("detalii_comanda_producator.html", APPNAME=APPNAME, info_comanda=info_cmd)
+
+@main.route("/vanzare_produse", methods = ['GET', 'POST'])
+def vanzare_produse():
+    return render_template("vanzare_produse.html", APPNAME=APPNAME)

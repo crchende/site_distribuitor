@@ -1,8 +1,10 @@
 from .db import db
+from datetime import datetime
 from typing import List
 from sqlalchemy import Integer, String
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Table, Column
+from sqlalchemy.orm import Mapped, mapped_column, relationship, WriteOnlyMapped
 from typing import Optional
 import logging
 from chocodist.params import APPNAME
@@ -27,11 +29,21 @@ class Producator(db.Model):
             
     id: Mapped[int] = mapped_column(primary_key=True)
     nume: Mapped[str] = mapped_column(String(30), index=True, unique=True)
-    produse: Mapped[List["Produs"]] = relationship(back_populates="producator")
+    produse: Mapped[list["Produs"]] = relationship(back_populates="producator")
+    comenzi_la_producator: WriteOnlyMapped['ComandaLaProducator'] = relationship(back_populates="producator", passive_deletes=True)
+    # vreau sa pot sterge producatorii fara comenzi, fara passive_deletes = True, nu pot
 
     def __repr__(self):
         return f"Producator({self.id}, {self.nume})"
         #return f"Producator(id={self.id!r}, nume={self.nume!r})" # !r = nu elimina/interpreteaza backslash-urile: \n -> \\n
+
+
+ProdusOras = Table(
+    'produse_orase',
+    db.Model.metadata,
+    Column('product_id', ForeignKey('produse.id'), primary_key=True, nullable=False),
+    Column('oras_id', ForeignKey('orase.id'), primary_key=True, nullable=False),
+)
 
 class Produs(db.Model):
     __tablename__ = "produse"
@@ -39,8 +51,17 @@ class Produs(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     nume: Mapped[str] = mapped_column(String(40))
     id_producator: Mapped[int] = mapped_column(ForeignKey("producatori.id"), index=True)
-    producator: Mapped['Producator'] = relationship(back_populates="produse")
-    cantitate_stoc: Mapped[Optional[int]] = mapped_column(default=0)
+
+    cantitate_stoc: Mapped[Optional[int]] = mapped_column(default=1)
+    pret_unitar: Mapped[int] = mapped_column(default=0)
+
+    producator: Mapped['Producator'] = relationship(back_populates='produse')
+    orase: Mapped[list['Oras']] = relationship(secondary=ProdusOras, back_populates='produse')
+
+    #produs_comenzi_la_producator: WriteOnlyMapped['ProdusComandaLaProducator'] = relationship(back_populates='produs', passive_deletes=True)
+    # daca n-am passive_deletes=True, nu pot sterge produsul, chiar daca nu este in nici o comanda
+    # de vazut ce se intampla daca am produsul adaugat intr-o comanda
+    produs_comenzi_la_producator: WriteOnlyMapped['ProdusComandaLaProducator'] = relationship(back_populates='produs', passive_deletes=True)
 
     # tratare problema duplicat nume pentru acelasi producator aici
     # nu pare o idee buna - ar trebui sa incerc sa creez un obiect
@@ -50,7 +71,57 @@ class Produs(db.Model):
     # totusi - am validat ca se apeleaza constructorul si ca-l pot suprascrie
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        print("apel __init__ Produs", self)
+        print("apel __init__ Produs", self, kwargs)
 
     def __repr__(self):
-        return f"Produs({self.id}, {self.nume}, {self.producator})"
+        return f"Produs({self.id}, {self.nume}, {self.producator}, {self.cantitate_stoc}, {self.pret_unitar})"
+    
+class Oras(db.Model):
+    __tablename__ = "orase"
+
+    id: Mapped[int] = mapped_column(primary_key = True)
+    nume: Mapped[str] = mapped_column(String(40), index=True, unique=True)
+
+    produse: Mapped[list['Produs']] = relationship(secondary=ProdusOras, back_populates='orase')
+
+    def __repr__(self):
+        return f"Oras({self.id}, {self.nume})"
+
+class ComandaLaProducator(db.Model):
+    __tablename__ = "comenzi_la_producator"
+    id: Mapped[int] = mapped_column(primary_key = True)
+    datatimp: Mapped[datetime] = mapped_column(default=datetime.now, index=True)
+    id_producator: Mapped[int] = mapped_column(ForeignKey('producatori.id'))
+    id_stare: Mapped[int] = mapped_column(ForeignKey('stari_comanda_la_producator.id'))
+
+    producator: Mapped['Producator'] = relationship(back_populates='comenzi_la_producator')
+    stare: Mapped['StareComandaLaProducator'] = relationship(back_populates="comenzi")
+    produse_comanda_la_producator: Mapped[List['ProdusComandaLaProducator']] = relationship(back_populates='comanda_la_producator')
+    #spre deosebire de produse - unde un produs poate sa apara foarte multe intrari din produsele din comenzi, aici pentru 
+    #o comanda avem un set unic de intrari in produse_comenzi_la_producator, relatia nu este de tip: WriteOnlyMapped
+
+    def __repr__(self):
+        return f"ComandaLaProducator({self.id}, {self.datatimp}, {self.id_producator}, {self.id_stare}, {self.produse_comanda_la_producator})"
+
+class StareComandaLaProducator(db.Model):
+    __tablename__ = "stari_comanda_la_producator"
+
+    id: Mapped[int] = mapped_column(primary_key = True)
+    nume: Mapped[str] = mapped_column(String(30), index=True, unique=True)
+    comenzi: WriteOnlyMapped['ComandaLaProducator'] = relationship(back_populates='stare')
+
+    def __repr__(self):
+        return f"StareComandaLaProducator({self.id},{self.nume})"
+
+class ProdusComandaLaProducator(db.Model):
+    __tablename__ = "produse_comenzi_la_producator"
+    id_produs: Mapped[int] = mapped_column(ForeignKey('produse.id'), primary_key=True)
+    id_comanda: Mapped[int] = mapped_column(ForeignKey('comenzi_la_producator.id'), primary_key=True)
+    pret_unitar: Mapped[float]
+    cantitate: Mapped[int]
+
+    produs: Mapped['Produs'] = relationship(back_populates='produs_comenzi_la_producator')
+    comanda_la_producator: Mapped['ComandaLaProducator']= relationship(back_populates='produse_comanda_la_producator')
+
+    def __repr__(self):
+        return f"ProdusComandaLaProducator({self.id_produs}, {self.id_comanda}, {self.pret_unitar}, {self.cantitate})"

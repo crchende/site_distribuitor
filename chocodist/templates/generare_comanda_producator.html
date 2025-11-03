@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% set pagina = namespace(nume="Generare comanda achizitie") %}
+
+{% block page_content %}
+    <header>
+    <h1>{{ pagina.nume }}</h1>
+    </header>
+    <p>Completare formular de comanda produse de la producatori.</p>
+    <!--Vizualizare comenzi: <a href="{{url_for('main.comenzi_la_producator')}}"> ->> Sumar comenzi la producatori</a>-->
+    <hr>
+    <div>
+        <!--DBG
+        id_selectat: {{id_selectat}}<br/>
+        {% for p in producatori %}
+            {{ p.nume }}: {{ p.id }}
+            {% if id_selectat != None and p.id != None and id_selectat|string == p.id|string %}
+                 -- selected, {{id_selectat}}
+            {% endif %}
+            <br/>
+        {% endfor %}
+        -->
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="selecteaza-producator" value="1"/>
+            <label for="producator">Alegeti producatorul</label>
+            <select name="producator" id="producator" type="number", required, onchange="this.form.submit()">
+                <option value="">---</option>
+                {% for p in producatori %}
+                    <option value={{ p.id }}
+                        {% if id_selectat != None and p.id != None and id_selectat == p.id|string %}
+                            selected
+                        {% endif %}
+                    >{{ p.nume }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    <hr>
+    <div class="container-table-and-form" style="width:80%;">
+        {% if selectat == "---" %}
+            Selectati producatorul!
+        {% elif oferta == [] %}
+            Nu avem oferta de la {{selectat}}!!!
+        {% else %}
+        <div class="container-form-add">
+            <h2>Oferta {{selectat|title}}</h2> 
+            Produse disponibile
+            <hr>
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="comanda-produse" value="1" />
+                <input type="hidden" name="id-producator" value={{id_selectat}} />
+                <input type="hidden" name="producator" value={{selectat}} />
+                
+                <table class="table-bordered table-striped table-hover tabeldetaliat" id="oferta-producator">
+                    <tr>
+                        <th>Produs</th>
+                        <th>Pret unitar</th>
+                        <th>Stoc</th>
+                        <th>Cumpar</th>
+                    </tr>
+                    {% for produs in oferta %}
+                    <tr class="produs">
+                        <td>{{produs['produs']}}</td>
+                        <td style="text-align: right;">{{produs['pret']}}</td>
+                        <td style="text-align: right;">{{produs['disponibil']}}</td>
+                        <td>
+                            <input type="number" name="produs: {{produs['produs']}}, pret: {{produs['pret']}}" style="width: 5em; text-align: right;" 
+                                min="0" max="{{produs['disponibil']}}"
+                                onchange="construiesteSumarComanda(event)">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+               <hr>
+                <input type="submit" value="Comanda"/>
+            </form>
+        </div>
+        <div id="div-sumar-comanda" class="container-detailed-table" style="display: none; text-align:right; float: right;">
+            {% set comanda = namespace(numar = "[numar]", data = "[data]") %}
+
+            <h3>Sumar Comanda:</h3>
+            <hr/>
+            Comanda: {{comanda.numar }}, / {{ comanda.data }}. <br>
+            Producator: {{selectat}}<br>
+            <!-- table-striped table-hover-->
+            <table id="tabel-sumar-comanda" class="table-bordered tabeldetaliat">
+                <tr>
+                    <th>Produs</th>
+                    <th>Pret Unitar</th>
+                    <th>Cantitate</th>
+                    <th>Pret</th>
+                </tr>
+            </table>
+            <div style="text-align: right">
+                <hr>
+                Total: <span id="total-sumar-comanda"></span>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+{% endblock %}

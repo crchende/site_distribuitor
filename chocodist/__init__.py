@@ -1,7 +1,13 @@
 from flask import Flask, render_template
+
 from flask_bootstrap import Bootstrap
 from flask_mail import Mail
 from flask_moment import Moment
+
+from flask_migrate import Migrate
+
+from flask_wtf.csrf import CSRFProtect
+
 import os
 import unittest
 import click
@@ -27,6 +33,7 @@ from config import config
 bootstrap = Bootstrap()
 mail = Mail()
 moment = Moment()
+csrf = CSRFProtect()
 
 # Factory method - creates the WEB app and connects to it all its components
 def create_app(config_name):
@@ -37,9 +44,12 @@ def create_app(config_name):
     bootstrap.init_app(app)
     mail.init_app(app)
     #moment.init_app(app)
+    csrf.init_app(app)
 
     # create the engine - db connection - using the URL from app config
     db.init_app(app)
+
+    migrate = Migrate(app, db)  
 
     # app blueprints (app subdivisions / modules, each one specialized in a speciffic area)
     from .main import main as main_blueprint
@@ -118,6 +128,103 @@ def sqlite_afiseaza_tabele():
     r = db.session.scalars(q).all()
     logger.info(f"rezultat interogare - cu scalars: {r}")
     logger.info("Se observa in primul set de rezultate - lista tupluri cu un singur element / al doilea set de rezultate - lista")
+
+
+@app.cli.command()
+def db_add_towns():
+    with db.session.begin():
+        for oras in ["Bucuresti", "Suceava", "Zalau", "Cluj-Napoca", "Bistrita", "Drobeta Turnu Severin"]:
+            o = modele.Oras(nume=oras)
+            db.session.add(o)
+
+@app.cli.command()
+def db_view_producator_comenzi_relatie_write_only():
+    # Utilitate - Producator are relatie WriteOnly catre ComenziLaProducator
+    # motiv - pot fi foarte multe comenzi pentru un producator si nu este\
+    # util sa avem o relatie lazy load, cum avem de exemplu pentru Produs.
+    # Relatia WriteOnly ajuta la generarea interogarii care trebuie executata
+    # apoi separat
+    producator1 = db.session.get(modele.Producator, 1)
+    query_from_write_only = producator1.comenzi_la_producator.select()
+    print("Interogare pentru tot tabelul - generata de relatia WriteOnly:", query_from_write_only.compile().string)
+    # Voi folosi aceasta interogare sa vad daca am macar o comanda de la producator
+    # daca da, nu voi sterge producatorul
+    # Cum pot fi foarte multe comenzi, este ineficient sa fac o interogare pentru 
+    # toate elementele, este suficient sa gasesc o comanda
+    query_with_limit = query_from_write_only.limit(1)
+    print("Interogarea anterioara - limitata la o singura intrare:", query_with_limit)
+
+    print(" ========== Executarea interogarilor de mai sus =========== ")
+    print(" --- Toate comenzile pentru produsul selectat --- ")
+    print(db.session.scalars(query_from_write_only).all())
+
+    print(" --- Doar o singura comanda (prima?) varianta cu scalars - evidentiere ca avem un singur element in lista --- ")
+    print(db.session.scalars(query_with_limit).all())
+
+    print(" --- Doar o singura comanda (prima?) varianta cu scalar - mai buna de folosit pentru un singur element --- ")
+    print(db.session.scalar(query_with_limit))
+
+@app.cli.command()
+def help_migration():
+    print("""
+
+IMPORTANT: 
+          
+Migrarea este necesara cand se modifica schema bazei de date.
+Se foloseste pachetul Alembic din flask, care se importa cu comanda:
+    from flask_migrate import Migrate
+In aplication factory, trebuie creat un obiect Migrate: 
+    migrate = Migrate(app, db)
+(Nota: Alte pachete se creaza in afara application factory si se inregistreaza
+       cu aplicatia dar acesta se creaza in application factory cu app ca parametru)
+
+
+
+1)  cd in 'chocodist'
+2)  daca s-a rulat initializarea - ar trebui sa fie directorul 'migrations'
+    Altfel: 
+          flask --app . db init
+3)  Generare fisier migrare
+          
+          flask --app . db migrate -m "mesaj - de ce fac migrarea"
+
+          (cum suntem deja in chocodist - directorul cu __init__.py in care este factory method
+          aplicatia este chiar '.')
+          Ne asteptam sa se genereze un nou fisiere de migrare in directorul 'migrations/versions'
+          cu un cod - codul migrarii + mesajul adaugat cu -m - doar daca sunt schimbari in 
+          modele.py - adica daca se adauga/sterg tabele sau daca se modifica - se adauga/sterg coloane
+
+          - pentru sqlalchemy, pentru a modifica cheia privata tabelul trebuie sters si creat
+            din nou (ceea ce este destul de dezavantajos daca contine date ...)
+          
+          - pot sa apara erori. TBD - de adaugat exemple de erori si cum se adreseaza
+
+4)   UPGRADE
+          
+          flask --app . db upgrade
+
+          Se face upgrade-ul la ultima varianta generata
+
+5)   DOWNGRADE
+          
+          Verificare pe care versiune suntem:
+
+          flask --app . db history
+          flask --app . db heads
+          flask --app . db show
+
+          De verificat si in directorul migrations/versions - versiunile afisate de comenzile de mai sus
+
+          in baza de date, in tabelul alembic_version este id-ul ultimei migrari
+
+          ATENTIE - o migrare de mai multe ori, poate duce la stergerea unor tabele
+                  DE FOLOSIT CU MULTA ATENTIE !!!
+
+        ERORI - de documentat
+          Pot apare diverse erori, in special daca nu se duce la capat un upgrade sau un downgrade.
+
+          ESTE BINE de avut un tool extra, de exemplu: DB BROWSER FOR SQLite, pentru SQLite, pentru a vedea baza de date.
+""")
 
 
 @app.cli.command()

@@ -1,0 +1,32 @@
+[
+    {
+        "produs": "Ciocolata neagra cu portocale",
+        "pret": 26,
+        "disponibil": 59,
+        "orase": ["Bucuresti"]
+    },
+    {
+        "produs": "Ciocolata neagra cu migdale",
+        "pret": 30,
+        "disponibil": 15,
+        "orase": ["Bucuresti", "Cluj Napoca"]
+    },
+    {
+        "produs": "Ciocolata neagra 80%",
+        "pret": 30,
+        "disponibil": 5,
+        "orase": ["Brasov", "Suceava"]
+    },
+    {
+        "produs": "Ciocolata Poiana cu iaurt",
+        "pret": 22,
+        "disponibil": 9,
+        "orase": ["Suceava"]
+    },
+    {
+        "produs": "Ciocolata Poiana cu caramel sarat",
+        "pret": 22,
+        "disponibil": 91,
+        "orase": ["Drobeta Turnu Severin"]
+    }
+]

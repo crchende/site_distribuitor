@@ -38,6 +38,20 @@ function showHide(event) {
     const aria_controls = event.target.getAttribute("aria-controls");
     const controled_element = document.getElementById(aria_controls);
     //console.log(controled_element)
+    let match_expand = text_div.match(/(.+) ►/)
+    let match_compact = text_div.match(/(.+) ▼/)
+    if(match_expand !== null) {
+        console.log("fac vizibil");
+        event.target.innerHTML = match_expand[1] + " " + "▼" //&#9660;
+        controled_element.style.display = "block";
+    } else if(match_compact !== null) {
+        console.log("ascund");
+        txt = match_compact[1]
+        event.target.innerHTML = match_compact[1] + " " + "►"
+        controled_element.style.display = "none";
+    }
+
+    /*
     if(text_div.indexOf("►") >= 0) { //&#9658;
         console.log("fac vizibil")
         if(aria_controls.substring("producer" >= 0)) {
@@ -56,6 +70,7 @@ function showHide(event) {
         }
         controled_element.style.display = "none"; //controled_element.style.visibility = "hidden"
     }
+    */
 }
 
 /*
@@ -105,10 +120,10 @@ $(window).on("load", function(event) {
     //getCookie("modifica");
     //getCookie("sterge");
     
-    let form_adauga = document.getElementById('add-product-form')
-    if(form_adauga == null) {
+    let form_adauga = document.getElementById('add-form')
+    /*if(form_adauga == null) {
         form_adauga = document.getElementById('add-producer-form')
-    }
+    }*/
 
     if(form_adauga == null) {
         return; //nu avem pagina cu formular de adaugare
@@ -158,6 +173,7 @@ $('body').on('focus', '[contenteditable]', function(event) {
 $('body').on('blur keydown', '[contenteditable]', function(event) {
     //event - evenimentul generat - de tip blur (iesire din element), keydown (apasare tasta) pe elemente cu 'contenteditable' din 'body'
     console.log("event.which blur / keydown:", event.which) //cod eveniment - event.which - la taste: 1: 49, 2: 50, a: 65, b: 66 ...
+    console.log(csrf_token);
     //console.log("OUT - event", event)
     //console.log(event.view.location.host)
     const pathname = event.view.location.pathname
@@ -211,7 +227,8 @@ $('body').on('blur keydown', '[contenteditable]', function(event) {
             fetch(pathname, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": csrf_token
                 },
                 body: body,
             })
@@ -269,3 +286,102 @@ $('.submit-with-icon').on(s'click', function(event) {
     }
 })
 */ 
+
+
+/* 
+    Construire tabel Comanda la producator.
+    De fiecare data cand selectez un element din oferta, adaug linie intr-un tabel
+    cu sumarul comenzii.
+*/
+
+function construiesteSumarComanda(event) {
+    console.log("construiesteSumarComanda")
+    //console.log(event)
+    //console.log(event.target)
+    const atribute_produs = event.target.parentNode.parentNode.children; //celulele dintr-un rand din oferta
+    console.log(atribute_produs)
+
+    /*
+        Metoda de a cauta obiectele nu este optima
+        Daca adaug au modific elemente in pagina, trebuie modificat aici
+        Cea mai buna metoda este sa identific elementele dupa ID.
+    */
+    //const div_sumar = event.target.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.nextSibling.nextSibling;
+    //const tabel_sumar = event.target.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.nextSibling.nextSibling.childNodes[1];
+    const div_sumar = document.getElementById("div-sumar-comanda");
+    const tabel_sumar = document.getElementById("tabel-sumar-comanda");
+    const body_tabel_sumar = tabel_sumar.childNodes[1]
+    const total_sumar_comanda = document.getElementById("total-sumar-comanda")
+
+
+    console.log("div_sumar:", div_sumar);
+    console.log("tabel_sumar:", tabel_sumar);
+
+    div_sumar.style.display = "block";
+    
+    const nume_produs = atribute_produs[0].textContent;
+    const pret_unitar = atribute_produs[1].textContent;
+    const input = atribute_produs[3].getElementsByTagName("input")[0];
+
+    let total = Number(total_sumar_comanda.textContent);
+    let total_produs_anterior = 0;
+    let total_produs = 0;
+    
+    console.log("input:", input, ", valoare input:", input.value);
+
+    const rand_existent = document.getElementById(nume_produs)
+    if(rand_existent) {
+        total_produs_anterior = rand_existent.children[3].textContent;
+        if(input.value == 0) {
+            //total = total - Number(input.value);
+            total -= total_produs_anterior;
+            body_tabel_sumar.removeChild(rand_existent);
+        } else {
+            rand_existent.children[2].textContent = input.value;
+            total_produs = pret_unitar * input.value;
+            rand_existent.children[3].textContent = total_produs;
+            total += total_produs - total_produs_anterior;
+        }
+    } else {
+        if(input.value == 0) {
+            return null;
+        }
+        const tr = document.createElement("tr");
+        tr.id = nume_produs;
+        tr.class = "produs";
+
+        let i = 0;
+        let pret = 0;
+
+        for (const element of atribute_produs) {
+            //console.log(element.textContent)
+            console.log("firstChild:", element.firstChild);
+            const input = element.getElementsByTagName("input")[0]
+            
+            let txt = "";
+            if(input) {
+                txt = input.value;
+                console.log("input:", txt)
+            } else {
+                txt = element.textContent;
+            }
+            console.log("data:", txt);
+            if(i != 2) {
+                const td = document.createElement("td")
+                if(i == 0) {
+                    td.style.textAlign = "left";
+                }
+                td.textContent = txt;
+                tr.appendChild(td);
+            }
+            i++;
+        }
+        const td_pret = document.createElement("td")
+        total_produs = Number(pret_unitar) * Number(input.value);
+        td_pret.textContent = total_produs;
+        total += total_produs;
+        tr.appendChild(td_pret)
+        body_tabel_sumar.appendChild(tr);
+    }
+    total_sumar_comanda.textContent = total;
+}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<header>
+<h1>Comenzi la producator</h1>
+
+<table class="table-bordered table-striped table-hover tabeldetaliat">
+    <tr>
+        <th>#</th>
+        <th>Producator</th>
+        <th>Tipuri produse comandate</th>
+        <th>Pret total</th>
+    </tr>
+    {% for comanda in comenzi %}
+        <tr>
+            <td><a href="{{url_for('main.detalii_comanda', id=[comanda[0]])}}" target="_blank">{{ comanda[0] }}</a></td>
+            <td>{{ comanda[1] }}</td>
+            <td>{{ comanda[2] }}</td>
+            <td>{{ comanda[3] }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+</header>
+{% endblock %}

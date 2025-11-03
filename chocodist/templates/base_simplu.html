@@ -1,0 +1,32 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %} {{ APPNAME|title }}{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    var csrf_token = "{{ csrf_token() }}";
+</script>
+<script type="text/javascript" src="{{ url_for('static', filename='scripts/chocodist.js') }}"></script>
+{% endblock scripts %}
+
+{% block head %}
+{{ super() }}
+<link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+<style>
+
+</style>
+{% endblock head %}
+
+{% block content %}
+    <section id="page_content">
+    {% block page_content %}
+    {% endblock page_content %}
+    </section>
+
+    {% block page_footer %}
+    {% endblock page_footer %}
+
+{% endblock content %}
+</div>

@@ -4,6 +4,9 @@
 
 {% block scripts %}
 {{ super() }}
+<script>
+    var csrf_token = "{{ csrf_token() }}";
+</script>
 <script type="text/javascript" src="{{ url_for('static', filename='scripts/chocodist.js') }}"></script>
 {% endblock scripts %}
 
@@ -31,9 +34,24 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li class="nav-item"><a href="{{ url_for('main.producatori')}}">Producatori</a></li>
-                    <li class="nav-item"><a href="{{ url_for('main.produse')}}">Produse</a></li>
-
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+                            Admistrare site <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-item"><a href="{{ url_for('main.produse')}}">Produse</a></li>
+                            <li class="dropdown-item"><a href="{{ url_for('main.producatori')}}">Producatori</a></li>
+                            <li class="dropdown-item"><a href="{{ url_for('main.locatie')}}">Locatie</a></li>
+                        </ul>
+                    </li>
+                    <!--
+                    <li class="nav-item"><a href="{{ url_for('main.produse')}}">Gestiune Produse</a></li>
+                    <li class="nav-item"><a href="{{ url_for('main.producatori')}}">Gestiune Producatori</a></li>
+                    <li class="nav-item"><a href="{{ url_for('main.locatie')}}">Gestiune Locatie</a></li>
+                    -->
+                    <li class="nav-item"><a href="{{ url_for('main.generare_comanda_producator')}}">Comanda la producator</a></li>
+                    <li class="nav-item"><a href="{{ url_for('main.comenzi_la_producator')}}">Sumar comenzi al producator</a></li>
+                    <li class="nav-item"><a href="{{ url_for('main.vanzare_produse')}}">Catalog produse</a></li>
                 </ul> 
                 <ul class="nav navbar-nav navbar-right navitem-right-side">
                     <li class="nav-item"><a href="{{ url_for('main.login')}}">Log In</a></li>
@@ -50,12 +68,18 @@
     {% for category, message in get_flashed_messages(with_categories=true) %}
     <div class="alert alert-{{category}}">
         <script>
-        setTimeout(function() { //acest cod face ca mesajele flash de tip succes sa dispara dupa 3 secunde
-        $('.alert-success').fadeOut('fast');
+        setTimeout(function() { //acest cod face ca mesajele flash de tip succes sa dispara dupa nr sec mentionat ca parm secunde
+            $('.alert-success').fadeOut("swing");
         }, 7000); // <-- time in milliseconds
+        setTimeout(function() {
+            $('.alert-warning').fadeOut("fast");
+        }, 4000);
+
          </script>
         <button type="button" class="close" data-dismiss="alert">&times;</button>
-        {{ message }}
+        {% for l in message.split("\n") %}
+            <p>{{ l }}</p>
+        {% endfor %}
     </div>
     {% endfor %}
     
