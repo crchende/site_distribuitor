@@ -11,7 +11,8 @@ from .forms import ProducerAddForm, ProductModifyForm
 from .producator_ctrl import ProducatorCtrl
 from .produs_ctrl import ProdusCtrl
 from .oras_ctrl import OrasCtrl
-from .generare_comanda_producator_ctrl import ComandaProducatorCtrl
+from .comanda_producator_ctrl import ComandaProducatorCtrl
+from .comanda_client_ctrl import ComandaClientCtrl
 #from .obj_ctrl import ObjCtrl
 
 import logging
@@ -289,8 +290,7 @@ def generare_comanda_producator():
             print(request.form) 
             flash(f"Comanda la producatorul {request.form['producator']} a fost trimisa!", category="success")
             ComandaProducatorCtrl.addProducerOrder(request.form)
-               
-
+        
     return render_template("generare_comanda_producator.html", APPNAME=APPNAME, producatori=producatori, id_selectat=id_selectat, selectat=selectat, oferta=oferta)
 
 @main.route("/comenzi_la_producator", methods = ['GET', 'POST'])
@@ -298,12 +298,21 @@ def comenzi_la_producator():
     comenzi = ComandaProducatorCtrl.getAllOrders()
     return render_template("comenzi_la_producator.html", APPNAME=APPNAME, comenzi=comenzi)
 
-@main.route("/detalii_comanda", methods=['GET'])
-def detalii_comanda():
+@main.route("/detalii_comanda_producator", methods=['GET'])
+def detalii_comanda_producator():
     info_cmd = ComandaProducatorCtrl.getOrderDetails(request.args['id'])
     logger.debug(f"Informatii detaliate despre comanda: {info_cmd}")
     return render_template("detalii_comanda_producator.html", APPNAME=APPNAME, info_comanda=info_cmd)
 
-@main.route("/vanzare_produse", methods = ['GET', 'POST'])
-def vanzare_produse():
-    return render_template("vanzare_produse.html", APPNAME=APPNAME)
+@main.route("/generare_comanda_client", methods = ['GET', 'POST'])
+def generare_comanda_client():
+    producatori = None
+    id_selectat = None
+    selectat = None
+    if request.method == "POST":
+        print("request.form:", request.form)
+        ComandaClientCtrl.addNew(request.form)
+
+    oferta = ComandaClientCtrl.getOfferInfo()
+    print("Oferta pentru clienti", oferta)
+    return render_template("catalog_produse_cu_vanzare.html", APPNAME=APPNAME, producatori=producatori, id_selectat=id_selectat, selectat="CLIENT", oferta=oferta)

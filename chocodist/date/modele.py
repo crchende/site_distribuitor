@@ -6,6 +6,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Table, Column
 from sqlalchemy.orm import Mapped, mapped_column, relationship, WriteOnlyMapped
 from typing import Optional
+from werkzeug.security import generate_password_hash, check_password_hash
 import logging
 from chocodist.params import APPNAME
 
@@ -61,7 +62,12 @@ class Produs(db.Model):
     #produs_comenzi_la_producator: WriteOnlyMapped['ProdusComandaLaProducator'] = relationship(back_populates='produs', passive_deletes=True)
     # daca n-am passive_deletes=True, nu pot sterge produsul, chiar daca nu este in nici o comanda
     # de vazut ce se intampla daca am produsul adaugat intr-o comanda
+    # separarea logica - produs cumparat de la producator
     produs_comenzi_la_producator: WriteOnlyMapped['ProdusComandaLaProducator'] = relationship(back_populates='produs', passive_deletes=True)
+
+    # separare logica - partea de vanzare, putem avea produs vandut
+    produs_comenzi_client: WriteOnlyMapped['ProdusComandaClient'] = relationship(back_populates='produs', passive_deletes=True)
+
 
     # tratare problema duplicat nume pentru acelasi producator aici
     # nu pare o idee buna - ar trebui sa incerc sa creez un obiect
@@ -87,6 +93,10 @@ class Oras(db.Model):
     def __repr__(self):
         return f"Oras({self.id}, {self.nume})"
 
+
+####################
+# COMANDA PRODUCATOR
+####################
 class ComandaLaProducator(db.Model):
     __tablename__ = "comenzi_la_producator"
     id: Mapped[int] = mapped_column(primary_key = True)
@@ -96,7 +106,7 @@ class ComandaLaProducator(db.Model):
 
     producator: Mapped['Producator'] = relationship(back_populates='comenzi_la_producator')
     stare: Mapped['StareComandaLaProducator'] = relationship(back_populates="comenzi")
-    produse_comanda_la_producator: Mapped[List['ProdusComandaLaProducator']] = relationship(back_populates='comanda_la_producator')
+    produse_comanda_la_producator: Mapped[list['ProdusComandaLaProducator']] = relationship(back_populates='comanda_la_producator')
     #spre deosebire de produse - unde un produs poate sa apara foarte multe intrari din produsele din comenzi, aici pentru 
     #o comanda avem un set unic de intrari in produse_comenzi_la_producator, relatia nu este de tip: WriteOnlyMapped
 
@@ -107,7 +117,7 @@ class StareComandaLaProducator(db.Model):
     __tablename__ = "stari_comanda_la_producator"
 
     id: Mapped[int] = mapped_column(primary_key = True)
-    nume: Mapped[str] = mapped_column(String(30), index=True, unique=True)
+    nume: Mapped[str] = mapped_column(String(30), index=True, unique=True) # 1. trimisa (catre producator), 2. primita (de la producator)
     comenzi: WriteOnlyMapped['ComandaLaProducator'] = relationship(back_populates='stare')
 
     def __repr__(self):
@@ -125,3 +135,86 @@ class ProdusComandaLaProducator(db.Model):
 
     def __repr__(self):
         return f"ProdusComandaLaProducator({self.id_produs}, {self.id_comanda}, {self.pret_unitar}, {self.cantitate})"
+
+################
+# UTILIZATOR + ROL
+################
+class Utilizator(db.Model):
+    __tablename__ = "utilizatori"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    nume_utilizator: Mapped[str] = mapped_column(String(30), index=True, unique=True)
+    prenume: Mapped[str] = mapped_column(String[30]) # name, first name, given name
+    nume_familie: Mapped[str] = mapped_column(String[30]) # surname, family name, last name
+    password_hash: Mapped[str] = mapped_column(String(128))
+    id_rol: Mapped[int] = mapped_column(ForeignKey('roluri.id'))
+
+    rol: Mapped['Rol'] = relationship(back_populates='utilizatori')
+    comenzi_client: WriteOnlyMapped['ComandaClient'] = relationship(back_populates="client", passive_deletes=True)
+
+    @property
+    def password(self):
+        raise AttributeError("parola nu este un atribut care poate fi citit")
+    
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def __repr__(self):
+        return f"Utilizator({self.id}, {self.nume_utilizator}, {self.prenume}, {self.nume_familie}, {self.rol.nume})"
+
+class Rol(db.Model):
+    __tablename__ = "roluri"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    nume: Mapped[str] = mapped_column(String(30), index=True, unique=True)
+
+    utilizatori: Mapped[list['Utilizator']] = relationship(back_populates='rol')
+
+    def __repr__(self):
+        return f"Rol({self.id}, {self.nume})"
+
+################
+# COMANDA CLIENT - foarte similar cu comanda la producator, le mentin separate. Motiv - flexibilitate. Parte negativa - ~duplicat~ de cod deocamdata
+################
+class ComandaClient(db.Model):
+    __tablename__ = "comenzi_client"
+    id: Mapped[int] = mapped_column(primary_key = True)
+    datatimp: Mapped[datetime] = mapped_column(default=datetime.now, index=True)
+    id_utilizator: Mapped[int] = mapped_column(ForeignKey('utilizatori.id'))
+    id_stare: Mapped[int] = mapped_column(ForeignKey('stari_comanda_client.id'))
+
+    client: Mapped['Utilizator'] = relationship(back_populates='comenzi_client')
+    stare: Mapped['StareComandaClient'] = relationship(back_populates="comenzi")
+    produse_comanda_client: Mapped[list['ProdusComandaClient']] = relationship(back_populates='comanda_client')
+    #spre deosebire de produse - unde un produs poate sa apara foarte multe intrari din produsele din comenzi, aici pentru 
+    #o comanda avem un set unic de intrari in produse_comenzi_la_producator, relatia nu este de tip: WriteOnlyMapped
+
+    def __repr__(self):
+        return f"ComandaClient({self.id}, {self.datatimp}, {self.id_producator}, {self.id_stare}, {self.produse_comanda_client})"
+
+class StareComandaClient(db.Model):
+    __tablename__ = "stari_comanda_client"
+
+    id: Mapped[int] = mapped_column(primary_key = True)
+    nume: Mapped[str] = mapped_column(String(30), index=True, unique=True) # 1. primita (de la client), 2. trimisa (catre client)
+    comenzi: WriteOnlyMapped['ComandaClient'] = relationship(back_populates='stare')
+
+    def __repr__(self):
+        return f"StareComandaClient({self.id},{self.nume})"
+
+class ProdusComandaClient(db.Model):
+    __tablename__ = "produse_comenzi_client"
+    id_produs: Mapped[int] = mapped_column(ForeignKey('produse.id'), primary_key=True)
+    id_comanda: Mapped[int] = mapped_column(ForeignKey('comenzi_client.id'), primary_key=True)
+    pret_unitar: Mapped[float]
+    cantitate: Mapped[int]
+
+    produs: Mapped['Produs'] = relationship(back_populates='produs_comenzi_client')
+    comanda_client: Mapped['ComandaClient']= relationship(back_populates='produse_comanda_client')
+
+    def __repr__(self):
+        return f"ProdusComandaClient({self.id_produs}, {self.id_comanda}, {self.pret_unitar}, {self.cantitate})"
+    
+

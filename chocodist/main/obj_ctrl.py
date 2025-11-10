@@ -68,3 +68,15 @@ class ObjCtrl:
         exec(cmd)
         #print("order_field = ", order_field)
         return db.session.scalars(select(cls.obj).order_by(order_field)).all()
+    
+    @staticmethod
+    def parse_offer_row_input(input_name):
+        if not input_name.startswith("produs:"):
+            return None
+        ret = {}
+        for attr in input_name.split(","):
+            k_v = attr.split(":")
+            k = k_v[0].strip()
+            v = k_v[1].strip()
+            ret[k] = v
+        return ret

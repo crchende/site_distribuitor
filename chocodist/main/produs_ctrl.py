@@ -110,7 +110,7 @@ class ProdusCtrl(ObjCtrl):
         ret = [0, ""]
         p = db.session.get(Produs, id)
         nume_p = p.nume
-        p_in_comenzi = db.session.scalars(select(ProdusComandaLaProducator).where(ProdusComandaLaProducator.id_produs == p.id)).one_or_none()
+        p_in_comenzi = db.session.scalars(select(ProdusComandaLaProducator).where(ProdusComandaLaProducator.id_produs == p.id)).first()
         if p_in_comenzi:
             logger.error(f"Produsul: {p_in_comenzi}, nu poate fi sters. Este adaugat in comenzi!")
             ret = [0, p.nume]

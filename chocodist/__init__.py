@@ -16,6 +16,7 @@ import csv
 from sqlalchemy import select # obiect necesar pentru a construi select-uri
 from sqlalchemy import insert, update, delete # necesare a construi interogari de adaugare/modificare/stergere
 from sqlalchemy import text # pentru a declara interogari explicit: text("SE")
+from sqlalchemy import exc # pentru exceptii sepecifice sqlalchemy
 
 from .params import APPNAME, basedir
 
@@ -228,9 +229,46 @@ In aplication factory, trebuie creat un obiect Migrate:
 
 
 @app.cli.command()
+def adauga_rol():
+    nume_rol = "client"
+    try:
+        with db.session.begin():
+            db.session.add(modele.Rol(nume=nume_rol))
+    except exc.IntegrityError as e:
+        print(f"Rolul: {nume_rol} nu poate fi adaugat. Exista deja.")
+        print(f"Eroarea de tip {e.__class__.__name__} generata de baza de date:\n{e}")
+
+
+@app.cli.command()
+def adauga_utilizator():
+    nume_utilizator = "client_intern"
+    prenume = "Intern"
+    nume_familie = "Intern"
+    try:
+        with db.session.begin():
+            rol_client = db.session.get(modele.Rol, 1)
+            cl_int = modele.Utilizator(nume_utilizator=nume_utilizator, prenume=prenume, nume_familie=nume_familie, rol=rol_client)
+            cl_int.password = "client"
+            db.session.add(cl_int)
+    except exc.IntegrityError as e:
+        print(f"Utilizatorul {nume_utilizator} nu poate fi adaugat. Exista deja.")
+        print(f"Eroarea de tip: {e.__class__.__name__} generata de baza de date::\n{e}")
+
+@app.cli.command()
+def verifica_utilizator():
+    cl_int = db.session.get(modele.Utilizator, 1)
+    print("Rezultat validare:", cl_int.verify_password("client1"))
+    try:
+        print(cl_int.password)
+    except AttributeError as e:
+        print(f"Validat: {e}")
+
+
+'''
+@app.cli.command()
 def exemplu_crud():
     pass
-
+'''
 
 @app.cli.command()
 def execunittest():

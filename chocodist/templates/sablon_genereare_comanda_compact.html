@@ -1,0 +1,46 @@
+    <div class="container-table-and-form" style="width:80%;">
+        {% if selectat == "---" %}
+            Selectati producatorul!
+        {% elif oferta == [] %}
+            {% if "CLIENT" in selectat %}
+                Catalogul este in curs de actualizare. Va fi disponibil in curand!
+            {% else %}
+                Nu avem oferta de la {{selectat}}!!!
+            {% endif %}
+        {% else %}
+        <div class="container-form-add">
+            {% if "CLIENT" in selectat %}
+                {% include "componente/formular_comanda_client.html" %}
+            {% else %} 
+                {% include "componente/formular_comanda_producator.html" %}
+            {% endif %}
+        </div>
+        <div id="div-sumar-comanda" class="container-detailed-table" style="display: none; text-align:right; float: right;">
+            {% set comanda = namespace(numar = "[numar]", data = "[data]") %}
+            <h3>Sumar Comanda:</h3>
+            <hr/>
+            Comanda: {{comanda.numar }}, / {{ comanda.data }}. <br>
+            {% if selectat != "CLIENT" %}
+                Producator: {{selectat}}<br>
+            {% else %}
+                Client: TBD<br>
+            {% endif %}
+            <!-- table-striped table-hover-->
+            <table id="tabel-sumar-comanda" class="table-bordered tabeldetaliat">
+                <tr id="tabel-sumar-comanda-cap-tabel"></tr>
+                <!-- GENERARE DINAMICA DIN JAVASCRIPT - inclusiv pentru capul de tabel
+                <tr>
+                    <th>Produs</th>
+                    <th>Pret Unitar</th>
+                    <th>Cantitate</th>
+                    <th>Pret</th>
+                </tr>
+                -->
+            </table>
+            <div style="text-align: right">
+                <hr>
+                Total: <span id="total-sumar-comanda"></span>
+            </div>
+        </div>
+        {% endif %}
+    </div>

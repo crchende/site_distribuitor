@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% set pagina = namespace(nume="Catalog produse") %}
+
+{% block page_content %}
+    <header>
+    <h1>{{ pagina.nume }}</h1>
+    </header>
+    <p>Selectati produsele pe care doriti sa le cumparati.</p>
+    <hr>
+
+    {% include "sablon_genereare_comanda_compact.html" %}
+
+{% endblock %}

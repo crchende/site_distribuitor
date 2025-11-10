@@ -1,0 +1,32 @@
+<h2>Oferta {{selectat|title}}</h2> 
+Produse disponibile
+<hr>
+<form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="hidden" name="comanda-produse" value="1" />
+    <input type="hidden" name="id-producator" value={{id_selectat}} />
+    <input type="hidden" name="producator" value={{selectat}} />
+    
+    <table class="table-bordered table-striped table-hover tabeldetaliat" id="oferta-producator">
+        <tr>
+            <th>Produs</th>
+            <th>Pret unitar</th>
+            <th>Stoc</th>
+            <th>Cumpar</th>
+        </tr>
+        {% for produs in oferta %}
+        <tr class="produs">
+            <td>{{ produs['produs'] }}</td>
+            <td style="text-align: right;">{{ produs['pret'] }}</td>
+            <td style="text-align: right;">{{ produs['disponibil'] }}</td>
+            <td>
+                <input type="number" name="produs: {{produs['produs']}}, pret: {{produs['pret']}}" style="width: 5em; text-align: right;" 
+                    min="0" max="{{produs['disponibil']}}"
+                    onchange="construiesteSumarComanda(event)">
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <hr>
+    <input id="submit-comanda" type="submit" value="Comanda" disabled/>
+</form>

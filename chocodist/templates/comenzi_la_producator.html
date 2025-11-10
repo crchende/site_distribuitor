@@ -13,7 +13,7 @@
     </tr>
     {% for comanda in comenzi %}
         <tr>
-            <td><a href="{{url_for('main.detalii_comanda', id=[comanda[0]])}}" target="_blank">{{ comanda[0] }}</a></td>
+            <td><a href="{{url_for('main.detalii_comanda_producator', id=[comanda[0]])}}" target="_blank">{{ comanda[0] }}</a></td>
             <td>{{ comanda[1] }}</td>
             <td>{{ comanda[2] }}</td>
             <td>{{ comanda[3] }}</td>

@@ -294,6 +294,229 @@ $('.submit-with-icon').on(s'click', function(event) {
     cu sumarul comenzii.
 */
 
+function converteste_nume_coloana_chei_dictionar(array_nume) {
+    let chei = [];
+    for(nume_coloana of array_nume) {
+        let cheie = nume_coloana.replace(" ", "_").toLowerCase()
+        if(cheie == "cantitate") {
+            cheie = "cantitate_stoc"
+        }
+        chei.push(cheie)
+    }
+    chei.push("cantitate_introdusa")
+    console.log("chei:", chei)
+    return chei
+}
+
+//Coloanele din oferta.
+//La oferta pentru client - apare in plus producatorul
+let coloane_oferta_producator = ["Produs", "Pret Unitar", "Cantitate", "Pret"]
+let coloane_oferta_client = ["Producator"].concat(coloane_oferta_producator)
+
+function construiesteCapTabelSumarComanda(tip_oferta) {
+    const cap_tabel = document.getElementById("tabel-sumar-comanda-cap-tabel");
+    //console.log("cap_tabel", cap_tabel)
+    //console.log("cap_tabal.childNodes:", cap_tabel.childNodes)
+    if(cap_tabel.childNodes.length != 0) { //avem capul de tabel
+        console.log("Capul de tabel a fost deja generat")
+        return 0;
+    }
+
+    let coloane = []
+    if(tip_oferta == "oferta-producator") {
+        coloane = coloane_oferta_producator;
+    } else if(tip_oferta == "oferta-client") {
+        coloane = coloane_oferta_client;
+    }
+
+    console.log("Generare cap tabel", tip_oferta, coloane)
+    for(let col of coloane) {
+        //console.log("col", col)
+        const th = document.createElement("th")
+        //if(i == 0) {
+        //    th.style.textAlign = "left";
+        //}
+        th.textContent = col;
+        cap_tabel.appendChild(th);
+    }
+}
+
+function actualizareSumarComanda(tip_oferta, atribute_produs) {
+    const tabel_sumar = document.getElementById("tabel-sumar-comanda");
+    const body_tabel_sumar = tabel_sumar.childNodes[1]
+    const total_sumar_comanda = document.getElementById("total-sumar-comanda")
+
+    //doar doua cazuri - producator, client, deocamdata e acceptabila abordarea
+
+    let chei_dictionar = []; //aici voi pune cheile convertite din numele coloanelor
+    //ar trebui sa fie identice cu cele din dictionarul de mai jos
+    let atribut_procesat = {
+        'produs': null,
+        'producator': null,
+        'pret_unitar': null,
+        'cantitate_stoc': null,
+        'input_cantitate': null,
+        'cantitate_introdusa': null
+    }
+
+    //id-uri in tabelul cu sumarul (nu in cel de comanda)
+    let id_produs = -1
+    let id_producator = -1
+    let id_pret_unitar = -1
+    let id_cantitate = -1 //cantitatea stoc din oferta
+    let id_pret = -1
+    
+    if(atribute_produs.length == 4 && tip_oferta == "oferta-producator") {
+        //atribute din tabelul cu oferta
+        atribut_procesat.produs = atribute_produs[0].textContent;
+        atribut_procesat.pret_unitar = atribute_produs[1].textContent;
+        atribut_procesat.cantitate_stoc = atribute_produs[2].textContent;
+        atribut_procesat.input_cantitate = atribute_produs[3].getElementsByTagName("input")[0]
+        atribut_procesat.cantitate_introdusa = atribut_procesat.input_cantitate.value;
+        
+        //id-uri in tabelul sumar comanda
+        id_produs = 0
+        id_pret_unitar = 1
+        id_cantitate = 2
+        id_pret = 3
+
+        chei_dictionar = converteste_nume_coloana_chei_dictionar(coloane_oferta_producator);
+    } else if(atribute_produs.length == 5 && tip_oferta == "oferta-client") {
+        //atribute din tabelul cu oferta
+        atribut_procesat.producator = atribute_produs[0].textContent;
+        atribut_procesat.produs = atribute_produs[1].textContent;
+        atribut_procesat.pret_unitar = Number(atribute_produs[2].textContent);
+        atribut_procesat.cantitate_stoc = Number(atribute_produs[3].textContent);
+        atribut_procesat.input_cantitate = atribute_produs[4].getElementsByTagName("input")[0];
+        atribut_procesat.cantitate_introdusa = Number(atribut_procesat.input_cantitate.value);
+        //id-uri in tabelul cu sumar comanda
+        id_producator = 0
+        id_produs = 1
+        id_pret_unitar = 2
+        id_cantitate = 3
+        id_pret = 4
+
+        chei_dictionar = converteste_nume_coloana_chei_dictionar(coloane_oferta_client)
+    } else {
+        return "Tip de oferta nesuportat: " + tip_oferta;
+    }
+
+    // conversie la numar, initial sunt text, fara conversie apar probleme de functionare
+    //  - cand verific daca val introdusa > val din stoc
+    atribut_procesat.pret_unitar = Number(atribut_procesat.pret_unitar);
+    atribut_procesat.cantitate_stoc = Number(atribut_procesat.cantitate_stoc);
+    atribut_procesat.cantitate_introdusa = Number(atribut_procesat.cantitate_introdusa);
+
+    let total = Number(total_sumar_comanda.textContent);
+    console.log("Total: ", total)
+    let total_produs_anterior = 0;
+    let total_produs = 0;
+
+    //verificare cantitate introdusa, nu trebuie sa depaseasca existentul in oferta
+    if(atribut_procesat.cantitate_introdusa > atribut_procesat.cantitate_stoc) {
+        console.log("WARNING: cantitatea tastata:", atribut_procesat.cantitate_introdusa, " > cantitatea stoc: ", atribut_procesat.cantitate_stoc, "! Nu se poate comanda mai mult decat exista!");
+        atribut_procesat.cantitate_introdusa = atribut_procesat.cantitate_stoc;
+        atribut_procesat.input_cantitate.value = atribut_procesat.cantitate_introdusa;
+    }
+    
+    const rand_existent = document.getElementById(atribut_procesat.produs)
+    console.log("rand existent", rand_existent);
+    if(rand_existent) {
+        console.log("Am deja produsul in comanda - il actualizez");
+        total_produs_anterior = rand_existent.children[id_pret].textContent; //initial - pt cmd prod 3
+        if(atribut_procesat.cantitate_introdusa == 0) {
+            //total = total - Number(input.value);
+            total -= total_produs_anterior;
+            body_tabel_sumar.removeChild(rand_existent);
+        } else {
+            rand_existent.children[id_cantitate].textContent = atribut_procesat.cantitate_introdusa; //input.value; //initial 2 - cantitate comandata cmd prod
+            total_produs = atribut_procesat.pret_unitar * atribut_procesat.cantitate_introdusa; //input.value;
+            rand_existent.children[id_pret].textContent = total_produs; // initial 3 - pret pt cmd prod
+            total += total_produs - total_produs_anterior;
+        }
+    } else {
+        console.log("rand nou")
+        if(atribut_procesat.cantitate_introdusa == 0) {
+            return null;
+        }
+        const tr = document.createElement("tr");
+        tr.id = atribut_procesat.produs;
+        tr.class = "produs";
+
+        let i = 0;
+        let pret = 0;
+
+        for(const cheie of chei_dictionar) {
+            //console.log(" --- cheie:", cheie, atribut_procesat[cheie]);
+            if(atribut_procesat[cheie] == null) {
+                continue
+            }
+            if(cheie == "cantitate_stoc") {
+                continue; //cantitatea stoc are sens doar in oferta
+            }
+            console.log("atribut:", cheie, "=", atribut_procesat[cheie]);
+
+            const td = document.createElement("td")
+            if(cheie == "producator" || cheie == "produs") {
+                td.style.textAlign = "left";
+            }
+            td.textContent = atribut_procesat[cheie];
+            tr.appendChild(td);
+        }
+        const td_pret = document.createElement("td")
+        total_produs = Number(atribut_procesat.pret_unitar) * atribut_procesat.cantitate_introdusa; //Number(input.value)
+        td_pret.textContent = total_produs;
+        total += total_produs;
+        tr.appendChild(td_pret)
+        body_tabel_sumar.appendChild(tr);
+    }
+    total_sumar_comanda.textContent = total;
+    let btn_submit = document.getElementById("submit-comanda")
+    if(total > 0) {
+        btn_submit.disabled = false
+        btn_submit.style.backgroundColor = "lightgreen";
+    } else {
+        btn_submit.disabled = true;
+        btn_submit.style.backgroundColor = "";
+    }
+
+}
+
+function construiesteSumarComanda(event) {
+    console.log("construiesteSumarComanda")
+    //detectare tip comanda - la producator sau de la client
+
+    //afiseaza sumarul
+    const div_sumar = document.getElementById("div-sumar-comanda");
+    div_sumar.style.display = "block";
+
+    let tip_oferta = null;
+    const tip_oferte = ["oferta-producator", "oferta-client"]
+
+    for(tip_oferta of tip_oferte) {
+        if(document.getElementById(tip_oferta)) {
+            break;
+        }
+    }
+
+    if(tip_oferta == null) {
+        console.log("Acest tip de oferta nu este suportat!")
+        return 0;
+    }
+    console.log("tip oferta:", tip_oferta);
+
+    construiesteCapTabelSumarComanda(tip_oferta)
+
+    const atribute_produs = event.target.parentNode.parentNode.children; //celulele dintr-un rand din oferta
+    console.log("atribute_produs:", atribute_produs)
+
+    //actualizare tabel sumar comanda
+    actualizareSumarComanda(tip_oferta, atribute_produs);
+}
+
+
+
+/* //FUNCTIA INITIALA
 function construiesteSumarComanda(event) {
     console.log("construiesteSumarComanda")
     //console.log(event)
@@ -301,11 +524,11 @@ function construiesteSumarComanda(event) {
     const atribute_produs = event.target.parentNode.parentNode.children; //celulele dintr-un rand din oferta
     console.log(atribute_produs)
 
-    /*
-        Metoda de a cauta obiectele nu este optima
-        Daca adaug au modific elemente in pagina, trebuie modificat aici
-        Cea mai buna metoda este sa identific elementele dupa ID.
-    */
+    //
+    //    Metoda de a cauta obiectele nu este optima
+    //    Daca adaug au modific elemente in pagina, trebuie modificat aici
+    //    Cea mai buna metoda este sa identific elementele dupa ID.
+    //
     //const div_sumar = event.target.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.nextSibling.nextSibling;
     //const tabel_sumar = event.target.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.nextSibling.nextSibling.childNodes[1];
     const div_sumar = document.getElementById("div-sumar-comanda");
@@ -313,15 +536,29 @@ function construiesteSumarComanda(event) {
     const body_tabel_sumar = tabel_sumar.childNodes[1]
     const total_sumar_comanda = document.getElementById("total-sumar-comanda")
 
-
     console.log("div_sumar:", div_sumar);
     console.log("tabel_sumar:", tabel_sumar);
 
     div_sumar.style.display = "block";
+
+    let nume_produs = ""
+    let nume_producator = ""
+    let pret_unitar = 0;
+    let cantitate_stoc = 0;
+    let input = undefined
     
-    const nume_produs = atribute_produs[0].textContent;
-    const pret_unitar = atribute_produs[1].textContent;
-    const input = atribute_produs[3].getElementsByTagName("input")[0];
+    if(atribute_produs.length == 4) {
+        nume_produs = atribute_produs[0].textContent;
+        pret_unitar = atribute_produs[1].textContent;
+        cantitate_stoc = atribute_produs[2].textContent;
+        input = atribute_produs[3].getElementsByTagName("input")[0];
+    } else if(atribute_produs.length == 5) {
+        nume_producator = atribute_produs[0].textContent;
+        nume_produs = atribute_produs[1].textContent;
+        pret_unitar = atribute_produs[2].textContent;
+        cantitate_stoc = atribute_produs[3]
+        input = atribute_produs[4].getElementsByTagName("input")[0];
+    }
 
     let total = Number(total_sumar_comanda.textContent);
     let total_produs_anterior = 0;
@@ -385,3 +622,4 @@ function construiesteSumarComanda(event) {
     }
     total_sumar_comanda.textContent = total;
 }
+*/
