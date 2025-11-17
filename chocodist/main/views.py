@@ -3,6 +3,9 @@ import os, json
 from flask import current_app, render_template, request, url_for, redirect, flash
 from flask import make_response
 from sqlalchemy import select, func, exc
+
+from flask_login import login_required
+
 from chocodist.date.db import db
 from chocodist.date.modele import Producator, Produs, Oras
 from chocodist.params import APPNAME, basedir
@@ -24,13 +27,8 @@ def index():
     logger.debug("/ - index")
     return render_template("index.html", APPNAME=APPNAME)
 
-@main.route("/login")
-def login():
-    logger.debug("/login")
-    return render_template("login.html", APPNAME=APPNAME)
-
-
 @main.route("/producatori", methods = ['GET', 'POST'])
+@login_required
 def producatori():
     response = ""
     if request.method == "POST":
@@ -55,16 +53,6 @@ def producatori():
         elif request.form['action'] == 'delete':
             logger.debug(f"form: {request.form.to_dict()}")
             ProducatorCtrl.delObj(request.form['item-id'])
-            """
-            try:
-                with db.session.begin():
-                    p = db.session.get(Producator, request.form['item-id'])
-                    #if p.produse = []:
-                    db.session.delete(p)
-                flash(f"Producatorul: {p.nume}, a fost sters!", category='success')
-            except exc.IntegrityError:
-                flash(f"Producatorul {p.nume} nu poate fi sters. Are produse asociate!", category="danger")
-            """
 
         elif request.form['action'] == "modify":
             logger.debug(f"form: {request.form.to_dict()}")
@@ -157,10 +145,19 @@ def produse():
         else:
             return redirect(url_for('.produse')) # name full: main.producatori or relative .producator
 
-    q = select(Produs).join(Producator).order_by(Producator.nume)
+    # Doar produse si prroducatori
+    # q = select(Produs).join(Producator).order_by(Producator.nume).order_by(Produs.nume)
     #logger.debug("q = " + str(q))
+    # produse si nr orase
+    q = select(Produs, Producator.nume, func.count(Oras.id))\
+            .join(Produs.orase, isouter=True)\
+            .join(Produs.producator)\
+            .group_by(Produs.nume)\
+            .order_by(Producator.nume)\
+            .order_by(Produs.nume)
 
-    lst_prod = db.session.scalars(q).all()
+    lst_prod = db.session.execute(q).all()
+    logger.debug(f"Produs, nume producator, nr orase: {lst_prod}")
     lst_producatori = db.session.scalars(select(Producator)).all()
     orase = db.session.execute(select(Oras.id, Oras.nume).order_by(Oras.nume)).all()
     #logger.debug(f"Orase = {orase}")
@@ -255,16 +252,45 @@ def locatie():
     logger.debug(f"GET request. pagina: {url_for('.locatie')}")
     #count_products = func.count(Produs.id.distinct()).label(None)
     count_products = func.count(Produs.id).label(None) # here it works the same as with distinct
-    #q = select(Producator.id, Producator.nume, count_products).join(Producator.produse, isouter=True).order_by(Producator.nume).group_by(Producator) # join on objects link
-    #print("q = ", q)
-    #q =  SELECT producatori.id, producatori.nume, count(produse.id) AS count_1 
-    #FROM producatori LEFT OUTER JOIN produse ON producatori.id = produse.id_producator GROUP BY producatori.id, producatori.nume ORDER BY producatori.nume
 
-    q = select(Oras.id, Oras.nume)
+    # doar orasele care au produse - nume oras si cate produse sunt fabrircate
+    # select orase.nume, count(produse.nume) from orase 
+    # join produse_orase on orase.id=produse_orase.oras_id 
+    # join produse where produse_orase.product_id=produse.id 
+    # group by oras_id
+
+    #select orase.nume, count(produse.id) from orase 
+    #left join produse_orase on orase.id=produse_orase.oras_id 
+    #left join produse on produse_orase.product_id = produse.id 
+    #group by orase.id
+
+    # Aceleasi interogari dar folosind sqlalchemy ORM
+    #q = select(modele.Oras.nume, func.count(modele.Produs.nume)).join(modele.Produs.orase, isouter=True).group_by(modele.Oras.nume)
+    #
+    #>>> orase = db.session.execute(q).all()
+    #>>> orase
+    #[(None, 5), ('Bucuresti', 3), ('Cluj-Napoca', 1), ('Suceava', 2), ('Zalau', 4)]
+    #>>> 
+    #>>> q = select(modele.Oras.nume, func.count(modele.Produs.nume)).join(modele.Oras.produse, isouter=True).group_by(modele.Oras.nume)
+    #
+    #>>> orase = db.session.execute(q).all()
+    #>>> orase
+    #[('Bistrita', 0), ('Bucuresti', 3), ('Cluj-Napoca', 1), ('Drobeta Turnu Severin', 0), ('Suceava', 2), ('Timisoara', 0), ('Zalau', 4)]
+
+
+    q = select(Oras.id, Oras.nume, count_products).join(Oras.produse, isouter=True).group_by(Oras.id)
     print(q)
     
     lst_orase_count_tip_produse = db.session.execute(q).all()
-    logger.debug(f"id si nume producator si nr produse: {lst_orase_count_tip_produse}")
+    #print(lst_orase_count_tip_produse)
+    # DEBUG: ChocoDist.chocodist.main.views: locatie: id, oras si nr produse:
+    # [(1, 'Bucuresti', 3), (2, 'Suceava', 2), (3, 'Zalau', 4), (4, 'Cluj-Napoca', 1), (5, 'Bistrita', 0), (6, 'Drobeta Turnu Severin', 0), (7, 'Timisoara', 0)]
+    #
+    # print(lst_orase_count_tip_produse[0][1]) - e OK -> Bucuresti
+    #
+    #print(lst_orase_count_tip_produse[0]['nume']) - merge in Template dar nu si aici ...
+    #adica, in template, pot accesa elementele pentru un oras si din 
+    logger.debug(f"id, oras si nr produse: {lst_orase_count_tip_produse}")
     return render_template("locatie.html", APPNAME=APPNAME, orase=lst_orase_count_tip_produse)
 
 @main.route("/generare_comanda_producator", methods = ['GET', 'POST'])
@@ -316,3 +342,13 @@ def generare_comanda_client():
     oferta = ComandaClientCtrl.getOfferInfo()
     print("Oferta pentru clienti", oferta)
     return render_template("catalog_produse_cu_vanzare.html", APPNAME=APPNAME, producatori=producatori, id_selectat=id_selectat, selectat="CLIENT", oferta=oferta)
+
+@main.route("/comenzi_clienti", methods=['GET'])
+def comenzi_clienti():
+    info_comenzi = ComandaClientCtrl.getAllOrders()
+    return render_template("comenzi_clienti.html", APPNAME=APPNAME, comenzi=info_comenzi)
+
+@main.route("/detalii_comanda_client", methods=['GET'])
+def detalii_comanda_client():
+    info_cmd = ComandaClientCtrl.getOrderDetails(request.args['id'])
+    return render_template("detalii_comanda_client.html", APPNAME=APPNAME, info_comanda=info_cmd)

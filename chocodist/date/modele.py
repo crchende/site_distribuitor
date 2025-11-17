@@ -6,7 +6,12 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Table, Column
 from sqlalchemy.orm import Mapped, mapped_column, relationship, WriteOnlyMapped
 from typing import Optional
+
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
+
+from chocodist import login_manager
+
 import logging
 from chocodist.params import APPNAME
 
@@ -139,7 +144,7 @@ class ProdusComandaLaProducator(db.Model):
 ################
 # UTILIZATOR + ROL
 ################
-class Utilizator(db.Model):
+class Utilizator(UserMixin, db.Model):
     __tablename__ = "utilizatori"
     id: Mapped[int] = mapped_column(primary_key=True)
     nume_utilizator: Mapped[str] = mapped_column(String(30), index=True, unique=True)
@@ -147,6 +152,7 @@ class Utilizator(db.Model):
     nume_familie: Mapped[str] = mapped_column(String[30]) # surname, family name, last name
     password_hash: Mapped[str] = mapped_column(String(128))
     id_rol: Mapped[int] = mapped_column(ForeignKey('roluri.id'))
+    confirmat: Mapped[bool] = mapped_column(default=False, nullable=False)
 
     rol: Mapped['Rol'] = relationship(back_populates='utilizatori')
     comenzi_client: WriteOnlyMapped['ComandaClient'] = relationship(back_populates="client", passive_deletes=True)
@@ -174,6 +180,13 @@ class Rol(db.Model):
 
     def __repr__(self):
         return f"Rol({self.id}, {self.nume})"
+
+# functie ceruta de catre extensia Flask-Login (LoginManager) pentru a fi apelata cand extensia
+# trebuie sa incarce un user din baza de date - dat fiind ID-ul user-ului
+# decorator pus la dispozitie de extensia login manager
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.get(Utilizator, int(user_id))
 
 ################
 # COMANDA CLIENT - foarte similar cu comanda la producator, le mentin separate. Motiv - flexibilitate. Parte negativa - ~duplicat~ de cod deocamdata

@@ -189,3 +189,9 @@ div[class="error-container"] {
     padding: 3px;
 }
 */
+
+/* login */
+.formular-login {
+    min-width: 200px;
+    width:20%;
+}

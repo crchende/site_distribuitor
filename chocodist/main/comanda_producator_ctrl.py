@@ -172,7 +172,9 @@ class ComandaProducatorCtrl(ObjCtrl):
         print(info_cmd['data_comanda'])
         print(info_cmd['total_comanda'])
 
-        q = select(Produs.nume, ProdusComandaLaProducator.cantitate, ProdusComandaLaProducator.pret_unitar, ProdusComandaLaProducator.pret_unitar * ProdusComandaLaProducator.cantitate)\
+        q = select(Produs.nume, ProdusComandaLaProducator.cantitate, \
+                    ProdusComandaLaProducator.pret_unitar, \
+                    ProdusComandaLaProducator.pret_unitar * ProdusComandaLaProducator.cantitate)\
             .join(ComandaLaProducator.producator)\
             .join(ComandaLaProducator.produse_comanda_la_producator)\
             .join(ProdusComandaLaProducator.produs)\

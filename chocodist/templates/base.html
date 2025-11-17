@@ -34,6 +34,7 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
+                    {% if current_user.is_authenticated %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
                             Admistrare site <b class="caret"></b>
@@ -51,10 +52,26 @@
                     -->
                     <li class="nav-item"><a href="{{ url_for('main.generare_comanda_producator')}}">Comanda la producator</a></li>
                     <li class="nav-item"><a href="{{ url_for('main.comenzi_la_producator')}}">Sumar comenzi al producator</a></li>
+                    {% endif %}
                     <li class="nav-item"><a href="{{ url_for('main.generare_comanda_client')}}">Catalog produse</a></li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item"><a href="{{ url_for('main.comenzi_clienti')}}">Sumar comenzi clienti</a></li>
+                    {% endif %}
                 </ul> 
                 <ul class="nav navbar-nav navbar-right navitem-right-side">
-                    <li class="nav-item"><a href="{{ url_for('main.login')}}">Log In</a></li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+                            Utilizator<b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-item"><a href="#">{{ current_user.nume_utilizator }}</a></li>
+                            <li class="dropdown-item"><a href="{{ url_for('auth.logout')}}">Log Out</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                     <li class="nav-item"><a href="{{ url_for('auth.login')}}">Log In</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

@@ -37,7 +37,6 @@ class ComandaClientCtrl(ObjCtrl):
 
                 stare_implicita.comenzi.add(c)
                 client.comenzi_client.add(c)
-                #db.session.commit()
                 
                 #print("request_form_param:", request_form)
 
@@ -53,14 +52,65 @@ class ComandaClientCtrl(ObjCtrl):
                     p = db.session.get(Produs, prod_info["produs"])
                     print(p, "cantitate cumparata:", cantitate)
 
+                    # Actualizare stoc - se cantitatea vanduta
+                    p.cantitate_stoc = p.cantitate_stoc - int(cantitate)
+
                     p_cmd_cl = ProdusComandaClient(pret_unitar=prod_info['pret'], cantitate=cantitate)
 
                     p_cmd_cl.produs = p
                     p_cmd_cl.comanda_client = c
                     db.session.add(p_cmd_cl)
-                        
-
         except Exception as e:
             print(e)
             raise(e)
 
+    @classmethod
+    def getAllOrders(cls):
+        # func.concat nu merge in sqlite3
+        with db.session.begin():
+            q = select(ComandaClient.id,\
+                       Utilizator.prenume.op('||')(' ').op('||')(Utilizator.nume_familie).label("nume"),\
+                       ComandaClient.datatimp,\
+                       func.count(ProdusComandaClient.id_produs), \
+                       func.sum(ProdusComandaClient.cantitate * ProdusComandaClient.pret_unitar)\
+                       )\
+                .join(ComandaClient.client)\
+                .join(ComandaClient.produse_comanda_client)\
+                .group_by(ProdusComandaClient.id_comanda)
+            all_orders = db.session.execute(q).all()
+            #print(all_orders)
+            return all_orders
+        
+
+    @classmethod
+    def getOrderDetails(cls, id_comanda):
+        info_cmd = {}
+        q = select(ComandaClient.id, 
+                   Utilizator.prenume.op('||')(' ').op('||')(Utilizator.nume_familie).label("nume"),\
+                   ComandaClient.datatimp, \
+                   func.sum(ProdusComandaClient.pret_unitar * ProdusComandaClient.cantitate))\
+            .join(ComandaClient.client)\
+            .join(ComandaClient.produse_comanda_client)\
+            .join(ProdusComandaClient.produs)\
+            .where(ComandaClient.id == id_comanda)
+        #cmd = db.session.get(ComandaLaProducator, id_comanda) - folosim interogarea de mai sus pentru a afla si totalul
+        cmd = db.session.execute(q).first()
+        info_cmd['id_comanda'] = cmd[0]
+        info_cmd['nume'] = cmd[1]
+        info_cmd['data_comanda'] = cmd[2].strftime("%Y-%m-%d %H:%M")
+        info_cmd['total_comanda'] = cmd[3]
+
+        print(info_cmd['data_comanda'])
+        print(info_cmd['total_comanda'])
+
+        q = select(Produs.nume, ProdusComandaClient.cantitate, \
+                    ProdusComandaClient.pret_unitar, \
+                    ProdusComandaClient.pret_unitar * ProdusComandaClient.cantitate)\
+            .join(ComandaClient.client)\
+            .join(ComandaClient.produse_comanda_client)\
+            .join(ProdusComandaClient.produs)\
+            .where(ComandaClient.id == id_comanda)
+
+        continut_comanda = db.session.execute(q).all()
+        info_cmd['continut_comanda'] = continut_comanda
+        return info_cmd

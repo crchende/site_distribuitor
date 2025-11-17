@@ -18,6 +18,10 @@ from sqlalchemy import insert, update, delete # necesare a construi interogari d
 from sqlalchemy import text # pentru a declara interogari explicit: text("SE")
 from sqlalchemy import exc # pentru exceptii sepecifice sqlalchemy
 
+from flask_login import LoginManager
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'
+
 from .params import APPNAME, basedir
 
 from .date.db import db
@@ -50,16 +54,16 @@ def create_app(config_name):
     # create the engine - db connection - using the URL from app config
     db.init_app(app)
 
+    login_manager.init_app(app)
+
     migrate = Migrate(app, db)  
 
     # app blueprints (app subdivisions / modules, each one specialized in a speciffic area)
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
     
-    '''
     from .auth import auth as auth_blueprint
-    app.register_blueprint(auth_blueprint)
-    '''
+    app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
     return app
 
@@ -263,6 +267,11 @@ def verifica_utilizator():
     except AttributeError as e:
         print(f"Validat: {e}")
 
+@app.cli.command()
+def sterge_produse_si_comenzi_client():
+    with db.session.begin():
+        db.session.execute(delete(modele.ProdusComandaClient))
+        db.session.execute(delete(modele.ComandaClient))
 
 '''
 @app.cli.command()
@@ -284,12 +293,12 @@ Tables:
  - produse
 will be created and initialized with info from the csv file: 
  - chocodist/date/dateinitiale/produse_producatori.csv
-'''    
+'''
+'''
+# comenzi anulate - erau utile initial, acum nu mai sunt utile
 @app.cli.command()
 def db_init_producator_produse():
-    '''
-    Initializare baza de date be baza unor date initiale - fisier produse_pro
-    '''
+    'Initializare baza de date be baza unor date initiale - fisier produse_pro'
     logger.info("Sterg toate tabelele inclusiv datele si le creez de la zero.")
     db.drop_all()
     db.create_all()
@@ -332,7 +341,7 @@ def db_creaza_tabele_din_modele():
     (2025/05) ModelProducatori (nume clasa) -> model_producatori (nume tabel)
     """
     db.create_all()
-
+'''
 
 
 #######################################

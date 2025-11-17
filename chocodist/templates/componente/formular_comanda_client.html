@@ -9,7 +9,9 @@ Produse disponibile
             <th>Produs</th>
             <th>Pret unitar</th>
             <th>Stoc</th>
+            {% if current_user.is_authenticated %}
             <th>Cumpar</th>
+            {% endif %}
         </tr>
         {% for produs in oferta %}
         <!--0 nume producator, 1 nume produs, 2 pret unitar, 3 cantitate stoc, 4 id produs-->
@@ -18,14 +20,18 @@ Produse disponibile
             <td>{{ produs[1] }}</td>
             <td style="text-align:right">{{ produs[2] }}</td>
             <td style="text-align:right">{{ produs[3] }}</td>
+            {% if current_user.is_authenticated %}
             <td>
                 <input type="number" name="produs: {{produs[4]}}, pret: {{produs[2]}}" style="width: 5em; text-align: right;" 
                     min="0" max="{{produs['disponibil']}}"
                     onchange="construiesteSumarComanda(event)">
             </td>
+            {% endif %}
         </tr>
         {% endfor %}
     </table>
     <hr>
+    {% if current_user.is_authenticated %}
     <input id="submit-comanda" type="submit" value="Comanda" disabled/>
+    {% endif %}
 </form>
