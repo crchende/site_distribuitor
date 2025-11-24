@@ -169,7 +169,7 @@ class Utilizator(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
-        return f"Utilizator({self.id}, {self.nume_utilizator}, {self.prenume}, {self.nume_familie}, {self.rol.nume})"
+        return f"Utilizator({self.id}, {self.nume_utilizator}, {self.prenume}, {self.nume_familie}, {self.id_rol})"
 
 class Rol(db.Model):
     __tablename__ = "roluri"

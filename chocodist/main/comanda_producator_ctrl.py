@@ -1,11 +1,14 @@
 import json
 import os
+import requests
 from sqlalchemy import select, func
 from chocodist.main.obj_ctrl import ObjCtrl
 from chocodist.params import APPNAME, basedir
 from chocodist.date.db import db
 from chocodist.date.modele import Producator, Produs, ComandaLaProducator
 from chocodist.date.modele import StareComandaLaProducator, ProdusComandaLaProducator
+
+from chocodist import cfg
 
 import logging
 logger = logging.getLogger(f"{APPNAME}.{__name__}")
@@ -14,9 +17,17 @@ logger = logging.getLogger(f"{APPNAME}.{__name__}")
 adauga, sterge, modifica
 """
 class ComandaProducatorCtrl(ObjCtrl):
+    
+    token = None
+
     @classmethod
     def getProducerOffer(cls, producer_name):
-        oferta = [] # lista cu produse
+        #oferta = [] # lista cu produse
+        oferta = cls.getProducerOfferViaAPI(producer_name)
+        if oferta != []:
+            return oferta
+
+        # icarcare din fisier local - in caz ca nu s-a luat oferta prin RESTAPI
         try:
             n = "oferta_" + producer_name.lower() + ".json"
             logger.debug(f"current folder: {os.getcwd()}")
@@ -27,7 +38,7 @@ class ComandaProducatorCtrl(ObjCtrl):
                 txt_jsn = f.read()
                 print("txt_jsn:", txt_jsn)
                 oferta = json.loads(txt_jsn)
-                logger.debug(f"Oferta (obiaecte obtinute din json): {oferta}")
+                logger.debug(f"Oferta (obiecte obtinute din json): {oferta}")
         except Exception as e:
             logger.error("Eroare incarcare oferta de la producator:\n" + str(e))
     
@@ -146,7 +157,7 @@ class ComandaProducatorCtrl(ObjCtrl):
             .join(ComandaLaProducator.produse_comanda_la_producator)\
             .group_by(ProdusComandaLaProducator.id_comanda)
 
-    
+     
         #q = select(ComandaLaProducator)
 
         print("q = ", q.compile(compile_kwargs={'literal_binds': True})) # MERGE ASA, e bine.
@@ -183,3 +194,101 @@ class ComandaProducatorCtrl(ObjCtrl):
         continut_comanda = db.session.execute(q).all()
         info_cmd['continut_comanda'] = continut_comanda
         return info_cmd
+    
+    @classmethod
+    def getProducerOfferViaAPI(cls, producer):
+        ret = []
+        # incerc cu token-ul existent
+        if cls.token == None:
+            cls.getProducerOfferAPIToken()
+
+
+        response = requests.get(
+            f'http://localhost:5001/api/v1/oferta/{producer}',
+            auth = (cls.token, '')
+        )
+        if not response.ok:
+            # posibil sa fie un token vechi
+            # refac token-ul
+            logger.debug(f"token NOT OK: {cls.token}")
+            cls.getProducerOfferAPIToken()
+            logger.debug(f"token NOU:    {cls.token}")
+
+            response = requests.get(
+                f'http://localhost:5001/api/v1/oferta/{producer}',
+                auth = (cls.token, '')
+            )
+            if response.ok:
+                ret = response.json()
+                logger.debug(f"OFERTA de la {producer}:\n{json.dumps(ret, indent=4)}")
+            else:
+                logger.debug(f"EROARE preluare oferta prin RESTAPI: {response.status_code} {response.text}")
+                logger.debug("oferta care va fi returnata: []")
+        else:
+            ret = response.json()
+
+        # in caz de eroare de preuare oferta, se va intoarce o lista goala
+        return ret
+
+    @classmethod
+    def getAllProducersOffersViaAPI(cls):
+        ret = []
+        # incerc cu token-ul existent
+        if cls.token == None:
+            cls.getProducerOfferAPIToken()
+
+
+        response = requests.get(
+            f'http://localhost:5001/api/v1/oferte',
+            auth = (cls.token, '')
+        )
+        if not response.ok:
+            # posibil sa fie un token vechi
+            # refac token-ul
+            logger.debug(f"token NOT OK: {cls.token}")
+            cls.getProducerOfferAPIToken()
+            logger.debug(f"token NOU:    {cls.token}")
+
+            response = requests.get(
+                f'http://localhost:5001/api/v1/oferte',
+                auth = (cls.token, '')
+            )
+            if response.ok:
+                ret = response.json()
+                logger.debug(f"OFERTA de la producatori disponibile pe RESTAPI:\n{json.dumps(ret, indent=4)}")
+            else:
+                logger.debug(f"EROARE preluare oferta prin RESTAPI: {response.status_code} {response.text}")
+                logger.debug("oferta care va fi returnata: []")
+        else:
+            ret = response.json()
+
+        # in caz de eroare de preuare oferta, se va intoarce o lista goala
+        return ret
+
+
+    @classmethod
+    def getProducerOfferAPIToken(cls):
+        ret = ()
+
+        response = requests.get(
+            'http://localhost:5001/api/v1/tokens',
+            auth = (cfg['APIUSER'], cfg['APIPASS'])
+            #auth = (cfg['APIUSER'], 'parola gresita')
+            #auth = ('utilizator inexistant', 'parola gresita')
+        )
+        if response.ok:
+            r_json = response.json()
+            print("response.status_code     ", response.status_code)
+            print("response.ok:             ", response.ok)
+            print("response.json()['token']:", r_json['token'])
+            print("response.json()[user]    ", r_json['user'])
+            ret = (True, r_json)
+            # salvare token ca variabila de clasa pentru utilizari ulterioare
+            cls.token = r_json['token']
+            logger.debug(f"generat token: {cls.token}")
+        else:
+            print("Eroare: ", response.status_code, response.text)
+            ret = str(response.status_code) + " " + response.text
+            ret = (False, ret)
+
+        return ret

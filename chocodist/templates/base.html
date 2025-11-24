@@ -40,9 +40,11 @@
                             Admistrare site <b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu">
-                            <li class="dropdown-item"><a href="{{ url_for('main.produse')}}">Produse</a></li>
-                            <li class="dropdown-item"><a href="{{ url_for('main.producatori')}}">Producatori</a></li>
-                            <li class="dropdown-item"><a href="{{ url_for('main.locatie')}}">Locatie</a></li>
+                            <li class="dropdown-item"><a href="{{ url_for('main.produse') }}">Produse</a></li>
+                            <li class="dropdown-item"><a href="{{ url_for('main.producatori') }}">Producatori</a></li>
+                            <li class="dropdown-item"><a href="{{ url_for('main.locatie') }}">Locatie</a></li>
+                            <li class="dropdown-item"><a href="{{ url_for('main.dbgtoken') }}">restapi producatori token</a></li>
+                            <li class="dropdown-item"><a href="{{ url_for('main.dbgoferte') }}">restapi producatori oferte</a></li>
                         </ul>
                     </li>
                     <!--
@@ -62,10 +64,9 @@
                     {% if current_user.is_authenticated %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-                            Utilizator<b class="caret"></b>
+                            {{ current_user.nume_utilizator }}<b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu">
-                            <li class="dropdown-item"><a href="#">{{ current_user.nume_utilizator }}</a></li>
                             <li class="dropdown-item"><a href="{{ url_for('auth.logout')}}">Log Out</a></li>
                         </ul>
                     </li>

@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+from flask import config as flask_config
 
 from flask_bootstrap import Bootstrap
 from flask_mail import Mail
@@ -11,7 +12,7 @@ from flask_wtf.csrf import CSRFProtect
 import os
 import unittest
 import click
-import csv
+import csv, json
 
 from sqlalchemy import select # obiect necesar pentru a construi select-uri
 from sqlalchemy import insert, update, delete # necesare a construi interogari de adaugare/modificare/stergere
@@ -28,17 +29,26 @@ from .date.db import db
 from .date import modele
 
 from .loggingsetup import logger
-
-
 logger.debug('Incarcare configuratie')
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+parent = os.path.dirname(basedir)
+
 from config import config
 
 bootstrap = Bootstrap()
 mail = Mail()
 moment = Moment()
 csrf = CSRFProtect()
+
+#cfg = config.Config(os.path.join(parent, 'instance')).from_pyfile('config.py')
+# this is the apicfg - for this case it works, both chocodist and offers from producers api
+# are in the same place - I can use a singe file
+# this info should be actually duplicated in the chocodist and api cfg files 
+cfg = flask_config.Config(os.path.join(parent, 'instance'))
+cfg.from_pyfile('config.py')
+logger.debug(f"cfg['APIUSER']  : {cfg['APIUSER']}")
+logger.debug(f"\ncfg['APIOFERTE'] = {json.dumps(cfg['APIOFERTE'], indent=4)}")
 
 # Factory method - creates the WEB app and connects to it all its components
 def create_app(config_name):

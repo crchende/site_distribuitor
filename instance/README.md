@@ -1,0 +1,1 @@
+Directorul 'instance' este folosit de serviciul restapi pentru a-si lua configuratia.

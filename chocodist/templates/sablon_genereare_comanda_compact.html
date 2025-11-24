@@ -11,8 +11,22 @@
         <div class="container-form-add">
             {% if "CLIENT" in selectat %}
                 {% include "componente/formular_comanda_client.html" %}
-            {% else %} 
-                {% include "componente/formular_comanda_producator.html" %}
+            {% else %}
+                {% if id_selectat == "token" %}
+                    {% if "Unauthorized" in oferta[1] %}
+                        Problema access la serverul de oferte:<br>
+                        <p style="font-family: 'Courier New', Courier, monospace; font-size: x-small; background-color: gainsboro;">
+                            {{ oferta[1] }}
+                        </p>
+                    {% else %}
+                        TOKEN ACCES: 
+                        <p style="font-family: 'Courier New', Courier, monospace; font-size: x-small; background-color: gainsboro;">
+                            {{ oferta[1].token }}
+                        </p>
+                    {% endif %}
+                {% else %}
+                    {% include "componente/formular_comanda_producator.html" %}
+                {% endif %}
             {% endif %}
         </div>
         <div id="div-sumar-comanda" class="container-detailed-table" style="display: none; text-align:right; float: right;">

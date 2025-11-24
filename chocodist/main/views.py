@@ -1,5 +1,5 @@
 from . import main
-import os, json
+import os, json, requests
 from flask import current_app, render_template, request, url_for, redirect, flash
 from flask import make_response
 from sqlalchemy import select, func, exc
@@ -293,6 +293,24 @@ def locatie():
     logger.debug(f"id, oras si nr produse: {lst_orase_count_tip_produse}")
     return render_template("locatie.html", APPNAME=APPNAME, orase=lst_orase_count_tip_produse)
 
+###########################################
+# REST API DBG - oferte de la producatori
+###########################################
+@main.route("/dbgtoken", methods = ['GET', 'POST'])
+def dbgtoken():
+    token_or_error = json.dumps(ComandaProducatorCtrl.getProducerOfferAPIToken(), indent=4)
+    logger.debug(f"token_or_error: {token_or_error}")
+    return render_template("dbgrestapitoken.html", APPNAME=APPNAME, token_or_error=token_or_error)
+
+@main.route("/dbgoferte", methods = ['GET', 'POST'])
+def dbgoferte():
+    api_offers = json.dumps(ComandaProducatorCtrl.getAllProducersOffersViaAPI(), indent=4)
+    logger.debug(f"api_offers: {api_offers}")
+    return render_template("dbgproducersrestapioffers.html", APPNAME=APPNAME, api_offers=api_offers)
+
+###########################################
+# Comenzi la producatori
+###########################################
 @main.route("/generare_comanda_producator", methods = ['GET', 'POST'])
 def generare_comanda_producator():
     q = select(Producator).order_by(Producator.nume)
@@ -330,6 +348,10 @@ def detalii_comanda_producator():
     logger.debug(f"Informatii detaliate despre comanda: {info_cmd}")
     return render_template("detalii_comanda_producator.html", APPNAME=APPNAME, info_comanda=info_cmd)
 
+
+###########################################
+# Comenzi de la clienti
+###########################################
 @main.route("/generare_comanda_client", methods = ['GET', 'POST'])
 def generare_comanda_client():
     producatori = None

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+    <header>
+    <h1>ChocoDist</h1>
+    <h3>EROARE conectare:</h3>
+    Detalii eroare:
+    <div class="error-container">
+        {{e.code}} {{e.name}}
+        <br/>
+        {{e.description}}
+    </div>
+    </header>
+{% endblock %}`
