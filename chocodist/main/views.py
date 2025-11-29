@@ -7,7 +7,7 @@ from sqlalchemy import select, func, exc
 from flask_login import login_required
 
 from chocodist.date.db import db
-from chocodist.date.modele import Producator, Produs, Oras
+from chocodist.date.modele import Producator, Produs, Oras, Permisiuni
 from chocodist.params import APPNAME, basedir
 
 from .forms import ProducerAddForm, ProductModifyForm
@@ -17,6 +17,8 @@ from .oras_ctrl import OrasCtrl
 from .comanda_producator_ctrl import ComandaProducatorCtrl
 from .comanda_client_ctrl import ComandaClientCtrl
 #from .obj_ctrl import ObjCtrl
+
+from .decoratori import permission_required, admin_required
 
 import logging
 
@@ -29,6 +31,7 @@ def index():
 
 @main.route("/producatori", methods = ['GET', 'POST'])
 @login_required
+@permission_required(Permisiuni.VIZUALIZAREDATEADMIN)
 def producatori():
     response = ""
     if request.method == "POST":
@@ -90,6 +93,8 @@ def producatori():
     return render_template("producatori.html", APPNAME=APPNAME, producatori=lst_producatori_count_produse, form=form)
 
 @main.route("/produse", methods = ['GET', 'POST'])
+@login_required
+@permission_required(Permisiuni.VIZUALIZAREDATEADMIN)
 def produse():
     response = ""
 
@@ -165,6 +170,8 @@ def produse():
     return render_template("produse.html", APPNAME=APPNAME, produse=lst_prod, producatori=lst_producatori, orase=orase)
 
 @main.route("/modifica-produs", methods = ['GET', 'POST'])
+@login_required
+@admin_required
 def modifica_produs():
     # the form to modify the product data - will be filled-out with current values for the selected product
     # BUG in WTF - for IntegerField, if the form remains on the screen - e.g. duplicate name, the value cantitate_stoc 
@@ -191,6 +198,8 @@ def modifica_produs():
 
 
 @main.route("/locatie", methods = ['GET', 'POST'])
+@login_required
+@permission_required(Permisiuni.VIZUALIZAREDATEADMIN)
 def locatie():
     #ObjCtrl.set_obj(Oras)
     response = ""
@@ -297,12 +306,16 @@ def locatie():
 # REST API DBG - oferte de la producatori
 ###########################################
 @main.route("/dbgtoken", methods = ['GET', 'POST'])
+@login_required
+@permission_required(Permisiuni.VIZUALIZAREDATEADMIN)
 def dbgtoken():
     token_or_error = json.dumps(ComandaProducatorCtrl.getProducerOfferAPIToken(), indent=4)
     logger.debug(f"token_or_error: {token_or_error}")
     return render_template("dbgrestapitoken.html", APPNAME=APPNAME, token_or_error=token_or_error)
 
 @main.route("/dbgoferte", methods = ['GET', 'POST'])
+@login_required
+@permission_required(Permisiuni.VIZUALIZAREDATEADMIN)
 def dbgoferte():
     api_offers = json.dumps(ComandaProducatorCtrl.getAllProducersOffersViaAPI(), indent=4)
     logger.debug(f"api_offers: {api_offers}")
@@ -312,6 +325,9 @@ def dbgoferte():
 # Comenzi la producatori
 ###########################################
 @main.route("/generare_comanda_producator", methods = ['GET', 'POST'])
+@login_required
+@permission_required(Permisiuni.VIZUALIZAREDATEADMIN)
+@permission_required(Permisiuni.COMENZIPRODUCATOR)
 def generare_comanda_producator():
     q = select(Producator).order_by(Producator.nume)
     #producatori = db.session.execute(q).all() - lista tupluri, cu un singur element in acest caz
@@ -353,6 +369,8 @@ def detalii_comanda_producator():
 # Comenzi de la clienti
 ###########################################
 @main.route("/generare_comanda_client", methods = ['GET', 'POST'])
+@login_required
+@permission_required(Permisiuni.COMENZICLIENT)
 def generare_comanda_client():
     producatori = None
     id_selectat = None

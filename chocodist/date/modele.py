@@ -4,11 +4,12 @@ from typing import List
 from sqlalchemy import Integer, String
 from sqlalchemy import ForeignKey
 from sqlalchemy import Table, Column
+from sqlalchemy import select
 from sqlalchemy.orm import Mapped, mapped_column, relationship, WriteOnlyMapped
 from typing import Optional
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 
 from chocodist import login_manager
 
@@ -152,10 +153,17 @@ class Utilizator(UserMixin, db.Model):
     nume_familie: Mapped[str] = mapped_column(String[30]) # surname, family name, last name
     password_hash: Mapped[str] = mapped_column(String(128))
     id_rol: Mapped[int] = mapped_column(ForeignKey('roluri.id'))
-    confirmat: Mapped[bool] = mapped_column(default=False, nullable=False)
+    confirmat: Mapped[Optional[bool]] = mapped_column(default=False)
 
     rol: Mapped['Rol'] = relationship(back_populates='utilizatori')
     comenzi_client: WriteOnlyMapped['ComandaClient'] = relationship(back_populates="client", passive_deletes=True)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        #super(Utilizator, self).__init__(**kwargs) # varianta pt PY 2.7
+        #adaug un rol default cand creez un utilizator. Rol default: Client
+        if self.rol is None:
+            self.rol = db.session.scalar(select(Rol).where(Rol.default==True))
 
     @property
     def password(self):
@@ -170,16 +178,94 @@ class Utilizator(UserMixin, db.Model):
 
     def __repr__(self):
         return f"Utilizator({self.id}, {self.nume_utilizator}, {self.prenume}, {self.nume_familie}, {self.id_rol})"
+    
+    def poate(self, perm):
+        return self.rol is not None and self.rol.are_permisiune(perm)
+    
+    def este_administrator(self):
+        return self.poate(Permisiuni.ADMINISTRARE)
+
+# clasa pentru a trata cazul utilizatorilor nelogati: anonim / vizitator (guest)
+# aplicatia poate apela current_user.poate() si current_user.este_administrator()
+# fara sa mai fie nevoie sa verifice daca userul este logat sa nu
+class AnonymousUser(AnonymousUserMixin):
+    def poate(self, permisiuni):
+        return False
+    
+    def este_administrator(self):
+        return False
+
+# login manager este configurat sa utilizeze clasa definita in aplicatie AnonymousUser 
+# prin atributul acestuia anonymous_user
+login_manager.anonymous_user = AnonymousUser
 
 class Rol(db.Model):
     __tablename__ = "roluri"
     id: Mapped[int] = mapped_column(primary_key=True)
     nume: Mapped[str] = mapped_column(String(30), index=True, unique=True)
+    default: Mapped[Optional[bool]] = mapped_column(default=False, index=True)
+    permisiuni: Mapped[Optional[int]] = mapped_column(default=0)
 
     utilizatori: Mapped[list['Utilizator']] = relationship(back_populates='rol')
 
+    def __init__(self, **kwargs):
+        """
+        Initial valoarea pentru permisiuni este None.
+        Trebuie setata la 0, de aceea avem nevoie de acest constructor.
+        """
+
+        #super(Rol, self).__init__(**kwargs) # pt compatibilitate cu Pytnon 2.7
+        # se specifica tipul si obiectul. In Python3 apelul este simplificat:
+        super().__init__(**kwargs)
+
+        if self.permisiuni == None:
+            self.permisiuni = 0
+
     def __repr__(self):
         return f"Rol({self.id}, {self.nume})"
+    
+    def are_permisiune(self, perm):
+        return self.permisiuni&perm == perm
+
+    def elimina_permisiune(self, perm):
+        if self.are_permisiune(perm):
+            self.permisiuni -= perm
+
+    def adauga_permisiune(self, perm):
+        if not self.are_permisiune(perm):
+            self.permisiuni += perm
+
+    def reset_permisiuni(self):
+        self.permisiuni = 0
+
+    @staticmethod
+    def insereaza_roluri():
+        """
+        Functia adauga rolurile de mai jos in baza de date si configureaza 
+        permisiunile pentru fiecare din ele.
+
+        Nu se observa aici utilizatorul 'anonim' / 'vizitator' - un utilizator
+        care vizualizeaza site-ul fara sa fie logat.
+        Acesta nu va avea nici unul din drepturile de mai jos.
+        Va putea vizualiza pagina de informare si ofeta pentru clienti
+        """
+        roluri = {
+            'Client': [Permisiuni.COMENZICLIENT],
+            'Angajat': [Permisiuni.COMENZICLIENT, Permisiuni.COMENZIPRODUCATOR, 
+                        Permisiuni.VIZUALIZAREDATEADMIN],
+            'Administrator': [Permisiuni.COMENZICLIENT, Permisiuni.COMENZIPRODUCATOR, 
+                              Permisiuni.VIZUALIZAREDATEADMIN, Permisiuni.ADMINISTRARE]
+        }
+        for rol in roluri:
+            db_r = db.session.scalar(select(Rol).where(Rol.nume == rol))
+            if db_r == None:
+                db_r = Rol(nume=rol)
+                db.session.add(db_r)
+            print(db_r)
+            for perm in roluri[rol]:
+                db_r.adauga_permisiune(perm)
+            
+            db.session.commit()
 
 # functie ceruta de catre extensia Flask-Login (LoginManager) pentru a fi apelata cand extensia
 # trebuie sa incarce un user din baza de date - dat fiind ID-ul user-ului
@@ -187,6 +273,26 @@ class Rol(db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(Utilizator, int(user_id))
+
+class Permisiuni:
+    """
+    User-ul cu rol 'anonim' va putea vizualiza oferta 'chocodist' si pagina de introducere
+    Nu poate da comenzi, nu poate vizualiza altceva
+
+    User-ul de cu rol 'Client' - poate da comenzi client si-si poate vizualiza comenzile
+
+    User-ul de cu rol 'Angajat' - poate da comenzi la client si producator 
+                                - poate vizualiza toate comenzile
+                                - poate vedea datele administrative
+                                - NU le poate modifica
+    
+    User-ul cu rol 'Administrator' - poate face toate actiunile de mai sus si in plus poate
+                                     sa si modifice datele administrative
+    """
+    COMENZICLIENT = 1                #2^0
+    COMENZIPRODUCATOR = 2            #2^1
+    VIZUALIZAREDATEADMIN = 4         #2^2
+    ADMINISTRARE = 8                 #2^3
 
 ################
 # COMANDA CLIENT - foarte similar cu comanda la producator, le mentin separate. Motiv - flexibilitate. Parte negativa - ~duplicat~ de cod deocamdata

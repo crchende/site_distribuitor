@@ -14,18 +14,18 @@ class LoginForm(FlaskForm):
 
 class RegisterForm(FlaskForm):
     user = StringField("Utilizator", validators=[
-            DataRequired(), Length(1, 64),
+            DataRequired(), Length(3, 64),
             Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0, "Numele utilizatorului trebuie sa inceapa cu o litera si poate contine litere, cifre, '_' si '.'")
             ]
         )
     nume = StringField("Nume", validators=[DataRequired(), Length(1, 64)])
-    prenume = StringField("Prenume", validators=[DataRequired(), Length(6, 64)])
+    prenume = StringField("Prenume", validators=[DataRequired(), Length(1, 64)])
     password = PasswordField("Parola", validators=[DataRequired(), Length(6, 64),
             EqualTo('password2', message='Parola nu este identica!')
             ]
         )
     password2 = PasswordField("Confirmare parola", validators=[DataRequired(), Length(6, 64)])
-    submit = SubmitField("Log In")
+    submit = SubmitField("Inregistrare")
 
     def validate_user(self, field):
         u = db.session.scalar(select(Utilizator).where(Utilizator.nume_utilizator == field.data))

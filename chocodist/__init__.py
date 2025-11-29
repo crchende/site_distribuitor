@@ -47,8 +47,8 @@ csrf = CSRFProtect()
 # this info should be actually duplicated in the chocodist and api cfg files 
 cfg = flask_config.Config(os.path.join(parent, 'instance'))
 cfg.from_pyfile('config.py')
-logger.debug(f"cfg['APIUSER']  : {cfg['APIUSER']}")
-logger.debug(f"\ncfg['APIOFERTE'] = {json.dumps(cfg['APIOFERTE'], indent=4)}")
+#slogger.debug(f"cfg['APIUSER']  : {cfg['APIUSER']}")
+#logger.debug(f"\ncfg['APIOFERTE'] = {json.dumps(cfg['APIOFERTE'], indent=4)}")
 
 # Factory method - creates the WEB app and connects to it all its components
 def create_app(config_name):

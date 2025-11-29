@@ -77,7 +77,9 @@
                         <span class="editable-td-span-tooltip">Click pe celula din tabel pentru a edita!</span>
                     </th>
                     <th>Nr. Locatii</th>
+                    {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
                     <th>Sterge</th>
+                    {% endif %}
                 </tr>
             {% set ns = namespace(i=1) %}
             {% for p in produse %}
@@ -94,6 +96,7 @@
                         <div class="editable-td-span-tooltip">IN LUCRU - afisare orase unde se fabrica</div>
                     </td>
                     <!--<button class="btn btn-default btn-xs"></button>-->
+                    {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
                     <td style="text-align: center;">
                         <form method="POST" onsubmit="return confirm('Produsul selectat va fi sters!')">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
@@ -103,6 +106,7 @@
                             </button>
                         </form>
                     </td>
+                    {% endif %}
                 </tr>
                 {% set ns.i = ns.i + 1 %}
             {% endfor %}
