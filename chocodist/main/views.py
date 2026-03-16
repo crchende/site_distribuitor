@@ -384,11 +384,15 @@ def generare_comanda_client():
     return render_template("catalog_produse_cu_vanzare.html", APPNAME=APPNAME, producatori=producatori, id_selectat=id_selectat, selectat="CLIENT", oferta=oferta)
 
 @main.route("/comenzi_clienti", methods=['GET'])
+@login_required
+@permission_required(Permisiuni.COMENZICLIENT)
 def comenzi_clienti():
     info_comenzi = ComandaClientCtrl.getAllOrders()
     return render_template("comenzi_clienti.html", APPNAME=APPNAME, comenzi=info_comenzi)
 
 @main.route("/detalii_comanda_client", methods=['GET'])
+@login_required
+@permission_required(Permisiuni.COMENZICLIENT)
 def detalii_comanda_client():
     info_cmd = ComandaClientCtrl.getOrderDetails(request.args['id'])
     return render_template("detalii_comanda_client.html", APPNAME=APPNAME, info_comanda=info_cmd)

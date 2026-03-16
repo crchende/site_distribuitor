@@ -67,6 +67,7 @@
                             {{ current_user.nume_utilizator }}<b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu">
+                            <li class="dropdown-item"><a href="#"> {{ current_user.rol.nume }} </a></li>
                             <li class="dropdown-item"><a href="{{ url_for('auth.logout')}}">Log Out</a></li>
                         </ul>
                     </li>

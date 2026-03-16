@@ -269,11 +269,20 @@ def adauga_utilizator():
         print(f"Eroarea de tip: {e.__class__.__name__} generata de baza de date::\n{e}")
 
 @app.cli.command()
-def verifica_utilizator():
-    cl_int = db.session.get(modele.Utilizator, 1)
-    print("Rezultat validare:", cl_int.verify_password("client1"))
+@click.argument('nume')
+@click.argument('parola')
+def verifica_utilizator(nume, parola):
+    print("nume,", nume, ", password:", parola)
+    q = select(modele.Utilizator).where(modele.Utilizator.nume_utilizator == nume)
+    print(q)
+    u_obj = db.session.scalar(select(modele.Utilizator).where(modele.Utilizator.nume_utilizator == nume))
+    #u_obj = db.session.scalar(select(modele.Utilizator).where(modele.Utilizator.nume_utilizator == "kendama"))
+    print(u_obj)
+    return
+    #cl_int = db.session.get(modele.Utilizator, 1)
+    print("Rezultat validare:", u_obj.verify_password(parola))
     try:
-        print(cl_int.password)
+        print(u_obj.password)
     except AttributeError as e:
         print(f"Validat: {e}")
 

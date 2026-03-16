@@ -38,7 +38,9 @@
                         <span class="editable-td-span-tooltip">Click pentru a edita!</span>
                     </th>
                     <th>Produse</th>
+                    {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
                     <th>Sterge</th>
+                    {% endif %}
                 </tr>
             {% set ns = namespace(i=1) %}
             {% for x in orase %}
@@ -53,6 +55,7 @@
                     <!--<td style="text-align:right; padding-right:10px;" contenteditable="true" 
                         action="modify" type="number" item-id="{{ x.id }}" item-attr="cantitate_stoc">{{ x.numar_produse }}</td>-->
                     <!--<button class="btn btn-default btn-xs"></button>-->
+                    {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
                     <td style="text-align: center;">
                         <form method="POST" onsubmit="return confirm('Orasul selectat va fi sters!')">
                             <button type="submit" class="submit-with-icon" name="action" value="delete">
@@ -61,6 +64,7 @@
                             </button>
                         </form>
                     </td>
+                    {% endif %}
                 </tr>
                 {% set ns.i = ns.i + 1 %}
             {% endfor %}
