@@ -155,14 +155,17 @@ def produse():
     #logger.debug("q = " + str(q))
     # produse si nr orase
     q = select(Produs, Producator.nume, func.count(Oras.id))\
-            .join(Produs.orase, isouter=True)\
             .join(Produs.producator)\
+            .join(Produs.orase, isouter=True)\
+            .group_by(Producator)\
             .group_by(Produs.nume)\
             .order_by(Producator.nume)\
             .order_by(Produs.nume)
 
     lst_prod = db.session.execute(q).all()
-    logger.debug(f"Produs, nume producator, nr orase: {lst_prod}")
+    #logger.debug(f"Produs, nume producator, nr orase: {lst_prod}")
+    for p in lst_prod:
+        print(p)
     lst_producatori = db.session.scalars(select(Producator)).all()
     orase = db.session.execute(select(Oras.id, Oras.nume).order_by(Oras.nume)).all()
     #logger.debug(f"Orase = {orase}")

@@ -225,7 +225,7 @@ class Rol(db.Model):
         return f"Rol({self.id}, {self.nume})"
     
     def are_permisiune(self, perm):
-        print("perm:", perm, type(perm), ", self.permisiuni:", self.permisiuni, type(self.permisiuni))
+        #print("perm:", perm, type(perm), ", self.permisiuni:", self.permisiuni, type(self.permisiuni))
         return self.permisiuni & perm == perm
 
     def elimina_permisiune(self, perm):

@@ -13,14 +13,15 @@ class ProducatorCtrl(ObjCtrl):
     def delObj(cls, id):
         err = 0
         try:
-            with db.session.begin():
-                p = db.session.get(Producator, id)
-                query_comenzi_write_only = p.comenzi_la_producator.select().limit(1)
-                if db.session.scalar(query_comenzi_write_only) == None:
-                    db.session.delete(p)
-                else:
-                    err = 1
-                    flash(f"Producatorul {p.nume} nu poate fi sters. Are comenzi asociate!", category="danger")
+            #with db.session.begin():
+            p = db.session.get(Producator, id)
+            query_comenzi_write_only = p.comenzi_la_producator.select().limit(1)
+            if db.session.scalar(query_comenzi_write_only) == None:
+                db.session.delete(p)
+                db.session.commit()
+            else:
+                err = 1
+                flash(f"Producatorul {p.nume} nu poate fi sters. Are comenzi asociate!", category="danger")
         except exc.IntegrityError:
             err = 1
             flash(f"Producatorul {p.nume} nu poate fi sters. Are produse asociate!", category="danger")

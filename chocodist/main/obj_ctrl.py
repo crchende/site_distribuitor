@@ -16,13 +16,14 @@ class ObjCtrl:
     @classmethod
     def addNew(cls, **kwargs):
         try:
-            with db.session.begin():
-                print(kwargs)
-                p = cls.obj(**kwargs)
-                db.session.add(p)
-                #db.session.commit() # daca nu folosesc with, trebuie sa fac commit dupa adaugare
-                logger.debug(f"Adding new {cls.obj.__name__}: {p}")
-                ret = (True, {'nume': p.nume})
+            #with db.session.begin():
+            logger.debug("Arguments to create the object:", kwargs)
+            p = cls.obj(**kwargs)
+            db.session.add(p)
+            db.session.commit()
+            #db.session.commit() # daca nu folosesc with, trebuie sa fac commit dupa adaugare
+            logger.debug(f"Adding new {cls.obj.__name__}: {p}")
+            ret = (True, {'nume': p.nume})
         except Exception as e:
             ret = (False, {e})
         
@@ -31,19 +32,20 @@ class ObjCtrl:
     @classmethod
     def modifyAttr(cls, id, value):
         orig_attr_val = None
-        with db.session.begin():
-            x = db.session.get(cls.obj, id)
+        #with db.session.begin():
+        x = db.session.get(cls.obj, id)
         
         try:
-            with db.session.begin():
-                orig_attr_val = x.nume
-                x.nume = value
+            #with db.session.begin():
+            orig_attr_val = x.nume
+            x.nume = value
+            db.session.commit()
         except exc.IntegrityError as e:
             logger.warning(f"Numele {cls.obj.__name__}lui nu poate fi modificat. Mai avem im cu {cls.obj.__name__} acelasi nume!")
     
         # Get and return the new value from db
-        with db.session.begin():
-            modified_p = db.session.get(cls.obj, id)
+        #with db.session.begin():
+        modified_p = db.session.get(cls.obj, id)
         
         ret = None
         #exec(f"ret = modified_p.{attr_name}")

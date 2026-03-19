@@ -10,6 +10,81 @@
     </header>
 
     <div class="container-table-and-form">
+        <div class="container-detailed-table">
+            <table class="table-bordered table-striped table-hover tabeldetaliat">
+                <tr>
+                    <th>
+                        <div class="editable-td-span-tooltip-trigger">#</div>
+                        <!--<span class="editable-td-span-tooltip">Click pe numarul curent al produsului pentru a-l edita!</span>-->
+                    </th>
+                    <th>Producator</th>
+                    <th class="editable-td">
+                        <div class="editable-td-span-tooltip-trigger">Produs</div>
+                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
+                        <span class="editable-td-span-tooltip">Click pe celula din tabel pentru a edita!</span>
+                        {% endif %}
+                    </th>
+                    <th class="editable-td">
+                        <div class="editable-td-span-tooltip-trigger">Cantitate Stoc</div>
+                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
+                        <span class="editable-td-span-tooltip">Click pe celula din tabel pentru a edita!</span>
+                        {% endif %}
+                    </th>
+                    <th class="editable-td">
+                        <div class="editable-td-span-tooltip-trigger">Pret Unitar</div>
+                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
+                        <span class="editable-td-span-tooltip">Click pe celula din tabel pentru a edita!</span>
+                        {% endif %}
+                    </th>
+                    <th>Nr. Locatii</th>
+                    {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
+                    <th>Sterge</th>
+                    {% endif %}
+                </tr>
+            {% set ns = namespace(i=1) %}
+            {% for p in produse %}
+                <tr>
+                    
+                    <td>
+                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
+                            <a href="{{url_for('main.modifica_produs', id=p[0].id)}}">{{ ns.i }}</a>
+                        {% else %}
+                            {{ ns.i }}
+                        {% endif %}
+                    <td>{{ p[1] }}</td>
+                    <td 
+                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %} contenteditable="true" {% endif %}
+                        action="modify" type="text" item-id="{{p[0].id}}" item-attr="nume">{{p[0].nume}}
+                    </td>
+                    <td style="text-align:right; padding-right:10px;" 
+                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %} contenteditable="true" {% endif %}
+                        action="modify" type="number" item-id="{{ p[0].id }}" item-attr="cantitate_stoc">{{p[0].cantitate_stoc}}
+                    </td>
+                    <td style="text-align:right; padding-right:10px;" 
+                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %} contenteditable="true" {% endif %}
+                        action="modify" type="number" item-id="{{ p[0].id }}" item-attr="pret_unitar">{{p[0].pret_unitar}}
+                    </td>
+                    <td class="editable-td" style="text-align:center;">
+                        <div class="editable-td-span-tooltip-trigger">{{ p[2] }}</div>
+                        <div class="editable-td-span-tooltip">IN LUCRU - afisare orase unde se fabrica</div>
+                    </td>
+                    <!--<button class="btn btn-default btn-xs"></button>-->
+                    {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
+                    <td style="text-align: center;">
+                        <form method="POST" onsubmit="return confirm('Produsul selectat va fi sters!')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="submit-with-icon" name="action" value="delete">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                <input type="hidden" name="item-id" value="{{ p[0].id }}">
+                            </button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% set ns.i = ns.i + 1 %}
+            {% endfor %}
+            </table>
+        </div>
         <div class="container-form-add">
             <!--style="display: none;" -->
             <div onclick="showHide(event)" aria-controls="add-form">Adauga produs &#9658;</div>
@@ -55,78 +130,6 @@
                     </p>
                 </fieldset>
             </form>
-        </div>
-        <div class="container-detailed-table">
-            <table class="table-bordered table-striped table-hover tabeldetaliat">
-                <tr>
-                    <th>
-                        <div class="editable-td-span-tooltip-trigger">#</div>
-                        <!--<span class="editable-td-span-tooltip">Click pe numarul curent al produsului pentru a-l edita!</span>-->
-                    </th>
-                    <th>Producator</th>
-                    <th class="editable-td">
-                        <div class="editable-td-span-tooltip-trigger">Produs</div>
-                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
-                        <span class="editable-td-span-tooltip">Click pe celula din tabel pentru a edita!</span>
-                        {% endif %}
-                    </th>
-                    <th class="editable-td">
-                        <div class="editable-td-span-tooltip-trigger">Cantitate Stoc</div>
-                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
-                        <span class="editable-td-span-tooltip">Click pe celula din tabel pentru a edita!</span>
-                        {% endif %}
-                    </th>
-                    <th class="editable-td">
-                        <div class="editable-td-span-tooltip-trigger">Pret Unitar</div>
-                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
-                        <span class="editable-td-span-tooltip">Click pe celula din tabel pentru a edita!</span>
-                        {% endif %}
-                    </th>
-                    <th>Nr. Locatii</th>
-                    {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
-                    <th>Sterge</th>
-                    {% endif %}
-                </tr>
-            {% set ns = namespace(i=1) %}
-            {% for p in produse %}
-                <tr>
-                    
-                    <td>
-                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
-                            <a href="{{url_for('main.modifica_produs', id=p[0].id)}}">{{ ns.i }}</a>
-                        {% else %}
-                            {{ ns.i }}
-                        {% endif %}
-                    <td>{{ p[1] }}</td>
-                    <td 
-                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %} contenteditable="true" {% endif %}
-                        action="modify" type="text" item-id="{{p[0].id}}" item-attr="nume">{{p[0].nume}}</td>
-                    <td style="text-align:right; padding-right:10px;" 
-                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %} contenteditable="true" {% endif %}
-                        action="modify" type="number" item-id="{{ p.id }}" item-attr="cantitate_stoc">{{p[0].cantitate_stoc}}</td>
-                    <td style="text-align:right; padding-right:10px;" 
-                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %} contenteditable="true" {% endif %}
-                        action="modify" type="number" item-id="{{ p.id }}" item-attr="pret_unitar">{{p[0].pret_unitar}}</td>
-                    <td class="editable-td" style="text-align:center;">
-                        <div class="editable-td-span-tooltip-trigger">{{ p[2] }}</div>
-                        <div class="editable-td-span-tooltip">IN LUCRU - afisare orase unde se fabrica</div>
-                    </td>
-                    <!--<button class="btn btn-default btn-xs"></button>-->
-                    {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
-                    <td style="text-align: center;">
-                        <form method="POST" onsubmit="return confirm('Produsul selectat va fi sters!')">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                            <button type="submit" class="submit-with-icon" name="action" value="delete">
-                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                <input type="hidden" name="item-id" value="{{ p[0].id }}">
-                            </button>
-                        </form>
-                    </td>
-                    {% endif %}
-                </tr>
-                {% set ns.i = ns.i + 1 %}
-            {% endfor %}
-            </table>
         </div>
     </div>
 {% endblock page_content %}

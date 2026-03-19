@@ -54,3 +54,5 @@ def create_app():
     #app.config['FLASK_RUN_PORT'] = 5001 # nu merge asa, ar trebui sa configurez o variabila de mediu
 
     return app
+
+app = create_app()

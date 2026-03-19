@@ -49,6 +49,7 @@ class ProdusCtrl(ObjCtrl):
             p = Produs(**kwargs) # nume, id_producator, cantitate_stoc, pret_unitar
             # nu-i clar daca se populeaza automat prin adaugarea id_produs
             db.session.add(p)
+            db.session.commit()
 
             # relatie de la mai multi la mai multi prin tabel de legatura fara atribute extra
             # prin popularea relatiei: p.orase.append(oras), se populeaza si tabelul de legatura
@@ -56,6 +57,7 @@ class ProdusCtrl(ObjCtrl):
                 oras = db.session.get(Oras, int(id))
                 #print(oras)
                 p.orase.append(oras)
+
             db.session.commit() # daca nu folosesc with, trebuie sa fac commit dupa adaugare
             logger.debug(f"Adding new product: {p}")
             return (True, {'nume': p.nume, 'producator': p.producator.nume})
@@ -65,13 +67,14 @@ class ProdusCtrl(ObjCtrl):
     @classmethod
     def modifyProductAttr(cls, id, attr_name, value):
         #verific daca exista un produs cu aceeasi denumire, de la acelasi utilizator
-        with db.session.begin():
-            p = db.session.get(Produs, id)
-            if attr_name == "nume": # doar la nume este obligatoriu sa nu avem duplicat
-                q = select(Produs).where(Produs.id_producator == p.id_producator, Produs.nume == value)
-                r = db.session.scalars(q).one_or_none()
-            else:
-                r = False
+        #with db.session.begin():
+        p = db.session.get(Produs, id)
+        #print("p = ", p, ", id:", id)
+        if attr_name == "nume": # doar la nume este obligatoriu sa nu avem duplicat
+            q = select(Produs).where(Produs.id_producator == p.id_producator, Produs.nume == value)
+            r = db.session.scalars(q).one_or_none()
+        else:
+            r = False
         print("r =", r)
         if r:
             logger.error(f"Deja exista un produs cu acelasi nume: {value}. Numele vechi: {p.nume} nu se modifica!")
@@ -80,13 +83,14 @@ class ProdusCtrl(ObjCtrl):
             #modific si memorez valoarea initiala
             orig_attr_val = None
             
-            with db.session.begin():
-                exec(f"orig_attr_val = p.{attr_name}")
-                if type(value) is str:
-                    modify_cmd = f"p.{attr_name} = '{value}'"
-                else:
-                    modify_cmd = f"p.{attr_name} = {value}"
-                exec(modify_cmd)
+            #with db.session.begin():
+            exec(f"orig_attr_val = p.{attr_name}")
+            if type(value) is str:
+                modify_cmd = f"p.{attr_name} = '{value}'"
+            else:
+                modify_cmd = f"p.{attr_name} = {value}"
+            exec(modify_cmd)
+            db.session.commit()
             
             # Get and return the new value from db
             with db.session.begin():

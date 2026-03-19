@@ -84,7 +84,7 @@
 
 .navitem-right-side {
     background-color: blue;
-    /*float: right;*/
+    lfloat: right;
 }
 
 .navbar-header {
@@ -98,7 +98,109 @@
     margin-left:4px;
 }
 
+
+/* EXPANDED state (above your custom breakpoint) */
+/*
+@media (min-width: 1120px) {
+  .navbar-header {
+    float: left;
+  }
+
+  .navbar-toggle {
+    display: none;
+  }
+
+  .navbar-collapse {
+    display: block !important;
+    height: auto !important;
+    padding-bottom: 0;
+    overflow: visible !important;
+  }
+
+  .navbar-nav {
+    float: left;
+    margin: 0;
+  }
+
+  .navbar-nav > li {
+    float: left;
+  }
+}
+  */
+
+/* COLLAPSED state (below your custom breakpoint) */
+/*
+@media (max-width: 1119px) {
+  .navbar-header {
+    float: none;
+  }
+
+  .navbar-toggle {
+    display: block;
+  }
+
+  .navbar-collapse {
+    display: none !important;
+    width: 100%;
+  }
+
+  .navbar-collapse.collapse.in {
+    display: block !important;
+  }
+
+  .navbar-nav {
+    float: none;
+  }
+
+  .navbar-nav > li {
+    float: none;
+  }
+}
+*/
+
+
+/*
+//see flask_bootstrap/static/css/bootstrap.css - there is the setup for the toolbar
+//and also the size of 768 foor toolbar collapse
+//bootstrap version used by Flask: Flask-Bootstrap==3.3.7.1
+
+@media (max-width: 1130px) {
+    .nav {
+        display: none;
+    }
+
+    .navbar-toggle {
+        display: block;
+    }
+    .navbar-header {
+        width:100%;
+    }
+    .navbar {
+        background-color: orangered;
+    }
+}
+
+@media (max-width: 899px) {
+  .navbar-expand-lg .navbar-collapse {
+    display: none !important;
+  }
+
+  .navbar-expand-lg .navbar-toggler {
+    display: block;
+  }
+}
+
+*/
 /* =========== table and form page =========== */
+.container-table-and-form {
+    /*
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    */
+    display: flex;
+    flex-direction: row;
+}
+
 .container-detailed-table {
     float: left; /*to appear on the same line with the form*/ 
 }
@@ -132,7 +234,32 @@
 .container-form-add {
     /*background-color:darksalmon;*/
     margin:0px 5px 5px 5px;
-    float:left;/*to appear on the same line with the table*/
+    /*float:left;to appear on the same line with the table*/
+}
+
+
+/* --------------------- micsorare fereastra ------------------------ */
+@media (max-width: 800px) {
+    .container-table-and-form {
+        flex-direction: column;
+    }
+
+    .container-form-add {
+        order: -1; /* moves add form above the table */
+    }
+
+    /*
+    pt display grid;
+
+
+      .div2 {
+        grid-row: 1;
+      }
+
+      .div1 {
+        grid-row: 2;
+      }
+    */
 }
 
 /*
