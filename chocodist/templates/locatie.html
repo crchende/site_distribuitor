@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% set pagina = namespace(nume="Produse") %}
+{% set pagina = namespace(nume="Locatie Producatori") %}
 
 {% block title %} {{ super() }} {{ pagina.nume }} {% endblock title %}
 
@@ -9,6 +9,54 @@
         <h1>{{ pagina.nume }}</h1>
     </header>
     <div class="container-table-and-form">
+        <div class="container-detailed-table">
+            <table class="table-bordered table-striped table-hover tabeldetaliat">
+                <tr>
+                    <th>#</th>
+                    <th class="editable-td">
+                        <div class="editable-td-span-tooltip-trigger">Oras</div>
+                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
+                        <span class="editable-td-span-tooltip">Click pentru a edita!</span>
+                        {% endif %}
+                    </th>
+                    <th>Produse</th>
+                    {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
+                    <th>Sterge</th>
+                    {% endif %}
+                </tr>
+            {% set ns = namespace(i=1) %}
+            {% for x in orase %}
+                <tr>
+                    <!--Nu stiu de ce merge si x.id / x['id'], x.nume / x['nume'] ??? dar nu si pentru count_products-->
+                    <td>{{ ns.i }}</td>
+                    <td action="modify" type="text" item-id="{{x.id}}" item-attr="nume" 
+                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %} contenteditable="true" {% endif %}>
+                        {{x.nume}}
+                    </td>
+                    <td td class="editable-td" style="text-align: right;">
+                        <div class="editable-td-span-tooltip-trigger">{{x[2]}}</div>
+                        <div class="editable-td-span-tooltip">IN LUCRU - afisare produse fabricate in oras</div>
+                    </td> <!--aici nu mai vrea cu count_products-->
+                    <!--<td style="text-align:right; padding-right:10px;" contenteditable="true" 
+                        action="modify" type="number" item-id="{{ x.id }}" item-attr="cantitate_stoc">{{ x.numar_produse }}</td>-->
+                    <!--<button class="btn btn-default btn-xs"></button>-->
+                    {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
+                    <td style="text-align: center;">
+                        <form method="POST" onsubmit="return confirm('Orasul selectat va fi sters!')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="submit-with-icon" name="action" value="delete">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                <input type="hidden" name="item-id" value="{{ x['id'] }}">
+                            </button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% set ns.i = ns.i + 1 %}
+            {% endfor %}
+            </table>
+        </div>
+
         <div class="container-form-add">
             <!--style="display: none;" -->
             <div onclick="showHide(event)" aria-controls="add-form">Adauga oras &#9658;</div>
@@ -28,47 +76,6 @@
                     </p>
                 </fieldset>
             </form>
-        </div>
-        <div class="container-detailed-table">
-            <table class="table-bordered table-striped table-hover tabeldetaliat">
-                <tr>
-                    <th>#</th>
-                    <th class="editable-td">
-                        <div class="editable-td-span-tooltip-trigger">Oras</div>
-                        <span class="editable-td-span-tooltip">Click pentru a edita!</span>
-                    </th>
-                    <th>Produse</th>
-                    {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
-                    <th>Sterge</th>
-                    {% endif %}
-                </tr>
-            {% set ns = namespace(i=1) %}
-            {% for x in orase %}
-                <tr>
-                    <!--Nu stiu de ce merge si x.id / x['id'], x.nume / x['nume'] ??? dar nu si pentru count_products-->
-                    <td>{{ ns.i }}</td>
-                    <td contenteditable="true" action="modify" type="text" item-id="{{x.id}}" item-attr="nume">{{x.nume}}</td>
-                    <td td class="editable-td" style="text-align: right;">
-                        <div class="editable-td-span-tooltip-trigger">{{x[2]}}</div>
-                        <div class="editable-td-span-tooltip">IN LUCRU - afisare produse fabricate in oras</div>
-                    </td> <!--aici nu mai vrea cu count_products-->
-                    <!--<td style="text-align:right; padding-right:10px;" contenteditable="true" 
-                        action="modify" type="number" item-id="{{ x.id }}" item-attr="cantitate_stoc">{{ x.numar_produse }}</td>-->
-                    <!--<button class="btn btn-default btn-xs"></button>-->
-                    {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
-                    <td style="text-align: center;">
-                        <form method="POST" onsubmit="return confirm('Orasul selectat va fi sters!')">
-                            <button type="submit" class="submit-with-icon" name="action" value="delete">
-                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                <input type="hidden" name="item-id" value="{{ x['id'] }}">
-                            </button>
-                        </form>
-                    </td>
-                    {% endif %}
-                </tr>
-                {% set ns.i = ns.i + 1 %}
-            {% endfor %}
-            </table>
         </div>
     </div>
 {% endblock %}

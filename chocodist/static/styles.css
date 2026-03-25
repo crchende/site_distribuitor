@@ -1,7 +1,7 @@
 /* ============ main page ============*/
 
 #page_content {
-    margin: 5px;
+    margin: 0px 3px 3px 3px;
     /*background-color: greenyellow;*/
 }
 
@@ -76,6 +76,7 @@
     background-color: darkblue;
     color: white;
     font-weight: bolder;
+    margin-bottom:0px;
 }
 
 .container {

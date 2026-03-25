@@ -27,7 +27,8 @@ logger = logging.getLogger(f"{APPNAME}.{__name__}")
 @main.route("/")
 def index():
     logger.debug("/ - index")
-    return render_template("index.html", APPNAME=APPNAME)
+    #return render_template("index.html", APPNAME=APPNAME)
+    return render_template("anyuser.html", APPNAME=APPNAME)
 
 @main.route("/producatori", methods = ['GET', 'POST'])
 @login_required
@@ -230,10 +231,11 @@ def locatie():
         elif request.form['action'] == 'delete':
             logger.debug(f"form: {request.form.to_dict()}")
             try:
-                with db.session.begin():
-                    x = db.session.get(Oras, request.form['item-id'])
+                x = db.session.get(Oras, request.form['item-id'])
+                #with db.session.begin():
                     #if p.produse = []:
-                    db.session.delete(x)
+                db.session.delete(x)
+                db.session.commit()
                 flash(f"Orasul: {x.nume}, a fost sters!", category='success')
             except exc.IntegrityError:
                 flash(f"Producatorul {x.nume} nu poate fi sters. Are produse asociate!", category="danger")
@@ -372,8 +374,8 @@ def detalii_comanda_producator():
 # Comenzi de la clienti
 ###########################################
 @main.route("/generare_comanda_client", methods = ['GET', 'POST'])
-@login_required
-@permission_required(Permisiuni.COMENZICLIENT)
+#@login_required
+#@permission_required(Permisiuni.COMENZICLIENT)
 def generare_comanda_client():
     producatori = None
     id_selectat = None

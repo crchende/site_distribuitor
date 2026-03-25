@@ -368,12 +368,12 @@ def db_creaza_tabele_din_modele():
 #######################################
 @app.errorhandler(404)
 def page_not_found(e):
-    print(dir(e))
+    print(e)
     return render_template('404.html', APPNAME=APPNAME, e=e), 404
 
 @app.errorhandler(400)
 def page_not_found(e):
-    print(dir(e))
+    print(e)
     return render_template('400.html', APPNAME=APPNAME, e=e), 400
     
 @app.errorhandler(500)

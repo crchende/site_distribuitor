@@ -1,0 +1,160 @@
+
+    <div class="prezentareapp">
+        <nav class="navprezentare">
+           <ul role="tablist" class="manual">
+            <!--<li><button id="buton-acasa" type="button" role="tab" aria-selected="true" aria-controls="continut-acasa">Acasa</a></li>-->
+            <li><a href="#" id="link-descriere" role="tab" aria-selected="true" aria-controls="continut-descriere">Prezentare generala</a></li>
+            <li><a href="#" id="link-exemple" role="tab" aria-selected="false" aria-controls="continut-exemple">Exemple</a></li>
+            <ul>
+                <li><a href="#" id="link-capitol2.1" role="tab" aria-selected="false" aria-controls="continut-capitol2.1">&raquo; Administrare</a></li>
+                <li><a href="#" id="link-capitol2.2" role="tab" aria-selected="false" aria-controls="continut-capitol2.2">&raquo; Comenzi produse</a></li>
+                <li><a href="#" id="link-capitol2.3" role="tab" aria-selected="false" aria-controls="continut-capitol2.3">&raquo; Login</a></li>
+                <li><a href="#" id="link-capitol2.4" role="tab" aria-selected="false" aria-controls="continut-capitol2.4">&raquo; Tur vizual</a></li>
+            </ul>
+            <li><a href="#" id="link-functionalitati" role="tab" aria-selected="false" aria-controls="continut-functionalitati">Sumar vizual</a></li>
+            <li><a href="#" id="link-capitol3" role="tab" aria-selected="false" aria-controls="continut-capitol3">Deseneaza ...</a></li>
+           </ul>
+        </nav>
+
+        <section class="pannels">
+        
+            <div id="continut-descriere" role="tabpanel" aria-labeledby="link-descriere">
+                {% include "anyuserpages/descriere_aplicatie.html" %}
+            </div>
+
+            <div id="continut-exemple" role="tabpanel" aria-labeledby="link-exemple">
+                <header>
+                    <h1>Exemple</h1>
+                </header>
+                <p class="descriere-artistic">
+                    Aplicatie web <b>chocodist</b> pune la dispozitie infrastructura cu care pot fi gestionate activitatile unui distribuitor.
+                    Legatura cu producatorii, ce produse avem pe stoc, comenzi la producatori, comenzi de la clienti, afisare comenzi intr-un formatare
+                    care poate fi printat sunt cateva din aceste activitati.
+                </p>
+                <p class="descriere-artistic">
+                    Am selectionat cateva exemple care dau o privire de ansamblu referitoare la folosirea aplicatiei.
+                </p>
+                <ul>
+                    <li>
+                        <span>Optiuni administrare site</span><!--capitol 2.1-->
+                        
+                    </li>
+                    <li>
+                        <span>Generare comenzi la producator si comenizi de la clienti</span> - oferta si formular de comanda<!--capitol 2.2-->
+                    </li>
+                    <li>
+                        <span>Vizualizare comenzi</span> - sumar comenzi si pagina printabila cu comanda selectata<!--capitol 2.3-->
+
+                    </li>
+                    <li>
+                        <span>Tur vizual</span> - slidewhow<!--capitol 2.3-->
+                    </li>
+                </ul>
+            </div>
+
+            <div id="continut-capitol2.1" role="tabpanel" aria-labeledby="link-capitol2.1">
+                <header>
+                    <h1>Optiuni administrare site</h1>
+                </header>
+                <ul class="descriere-artistic">
+                    <li>Administrare producatori, produse, locatii</li>
+                    <li>Vizualizare, Adaugare, Modificare, Stergere</li>
+                    <li>Modificare <b>inline</b> cu click pe celula unde se doreste modificat continutul si click in afara / Enter pentru a finaliza modificarea.</li>
+                    <li>Modificare prin formular de modificare - click pe link-ul de pe linia unde vrem sa facem modificarea</li>
+                    <li>Informatii debug - referitoare la interconectarea cu serverul RESTAPI de oferte de la producator</li>
+                </ul>
+                <img style='width:600px;', src="{{ url_for('static', filename='images/presentation/administrare_site_optiuni.png') }}">
+            </div>
+            <div id="continut-capitol2.2" role="tabpanel" aria-labeledby="link-capitol2.2">
+                <header>
+                    <h2>Comenzi. Pentru noi de la clienti. De la noi la producatori.</h2>
+                </header>
+                <h3>Clientii fac comanda de produse de la noi</h3>
+                <ul class="descriere-artistic">
+                    <li>Pentru a vedea oferta si a avea acces la formularul de comanda, este nevoie de conectare (login).</li>
+                    <li>Clientii conectati pot vedea oferta si pot selecta ce doresc sa comande.</li>
+                    <li>Comanda se genereaza automat pe baza selectiei facute.</li>
+                </ul>
+                <img style='width:600px;', src="{{ url_for('static', filename='images/presentation/catalog_produse_si_formular_comanda.png') }}">
+
+                <h3>Noi facem comanda la producator</h3>
+                <ul class="descriere-artistic">
+                    <li>Noi (chocodist) putem face comenzi la furnizorii/producatorii cu care lucram.</li>
+                    <li>Comenzile pot fi preluate prin REST API de la producator (de exemplu - oferta de la CODRINA).</li>
+                    <li>Se selecteaza producatorul dorit si produsele pe care vrem sa le comandam.</li>
+                </ul>
+                <img style='width:600px;', src="{{ url_for('static', filename='images/presentation/comanda_la_producator_cu_oferta_si_comanda.png') }}">
+            </div>
+            <div id="continut-capitol2.3" role="tabpanel" aria-labeledby="link-capitol2.3">
+                <header>
+                    <h1>Login si/sau inregistrare utilizator noiu</h1>
+                </header>
+                <img style='width:600px;', src="{{ url_for('static', filename='images/presentation/inregistrare_utilizator_nou.png') }}">
+            </div>
+            <div id="continut-capitol2.4" role="tabpanel" aria-labeledby="link-capitol2.4">
+                <header>
+                    <h3>Tur vizual - slideshow</h3>
+                </header>
+                <p>
+                    
+                </p>
+                <div id="navigare-poze-c22" role="navigare-poze">
+                    <button id="btn-imaginea-anterioara" role="btn-navigare-poze"><img class="img-buton-navigare" 
+                        src="{{ url_for('static', filename='images/tools/previous-97613_1280.webp') }}">
+                    </button>
+                    <div id="div-poza-curenta" role="grup-poze-de-afisat">
+                        <img src="{{ url_for('static', filename='images/presentation/administrare_site_optiuni.png') }}" 
+                            id="etapa1" role="img-etapa" aria-selected="true">
+                        <img src="{{ url_for('static', filename='images/presentation/administrare_produse_pg_principala.png') }}" 
+                            id="etapa2" role="img-etapa" aria-selected="false">
+                        <img src="{{ url_for('static', filename='images/presentation/catalog_produse_si_formular_comanda.png') }}" 
+                            id="etapa3" role="img-etapa" aria-selected="false">
+                        <img src="{{ url_for('static', filename='images/presentation/comanda_la_producator_cu_oferta_si_comanda.png') }}" 
+                            id="etapa4" role="img-etapa" aria-selected="false">
+                        <img src="{{ url_for('static', filename='images/presentation/detalii_comanda_la_producator_html.png') }}" 
+                            id="etapa5" role="img-etapa" aria-selected="false">
+                        <img src="{{ url_for('static', filename='images/presentation/detalii_comanda_la_producator_print.png') }}" 
+                            id="etapa6" role="img-etapa" aria-selected="false">
+                        <img src="{{ url_for('static', filename='images/presentation/client_conectat_comenzi_client.png') }}" 
+                            id="etapa7" role="img-etapa" aria-selected="false">
+                        <img src="{{ url_for('static', filename='images/presentation/inregistrare_utilizator_nou.png') }}" 
+                            id="etapa8" role="img-etapa" aria-selected="false">
+                    </div>
+                    <button id="btn-imaginea-urmatoare" role="btn-navigare-poze"><img class="img-buton-navigare" 
+                        src="{{ url_for('static', filename='images/tools/next-97612_640.webp') }} ">
+                    </button>
+                </div>
+            </div>
+
+            <div id="continut-functionalitati" role="tabpanel" aria-labeledby="link-functionalitati">
+                {% include "anyuserpages/functionalitati_in_imagini.html" %}
+            </div>
+
+            <div id="continut-capitol3" role="tabpanel" aria-labeledby="link-capitol3">
+                <header>
+                    <h1>Deseneaza ceva ... o ciocolata</h1>
+                </header>
+                <p>
+                    ... in lucru ...
+                </p>
+
+            </div>
+
+            <footer>chocodist &reg;</footer>
+        </section>
+    </div>
+
+    <dialog id="dialog-modal"
+        style="inset:0; width:99%; height:99%; position:absolute; background: rgba(0, 0, 0, 0.1); border-width: 1px; border-color:aquamarine;">
+            <div style="display:block;">
+            <button 
+                style="width:90%; height:25px; background:lightpink; color:black;"
+                type="button" class="close" 
+                data-dismiss="alert"
+            >
+                &times;
+            </button>
+        </div>
+    </dialog>
+    
+<!-- document.getElementById('dialog-modal') -->

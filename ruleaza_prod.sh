@@ -11,7 +11,7 @@ screen -dmS apioferte
 sleep 0.1
 screen -S apioferte -X stuff 'source ./activeaza_venv\n'
 sleep 0.2
-screen -S apioferte -X stuff 'gunicorn apioferte:create_app -b 127.0.0.1:5001\n'
+screen -S apioferte -X stuff 'gunicorn apioferte:app -b 127.0.0.1:5001\n'
 sleep 0.1
 
 # ================================

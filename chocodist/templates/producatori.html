@@ -8,12 +8,6 @@
     </header>
     
     <div class="container-table-and-form">
-        <div class="container-form-add" >
-            <div onclick="showHide(event)" aria-controls="add-form">Adauga producator &#9658;</div>
-            <div id="add-form" style="display: none;">
-                {{ wtf.quick_form(form) }}
-            </div>
-        </div>
         <div class="container-detailed-table">
             <table class="table-bordered table-striped table-hover tabeldetaliat">
             {% set ns = namespace(i=1) %}
@@ -21,7 +15,9 @@
                 <th>#</th>
                 <th class="editable-td">
                     <div class="editable-td-span-tooltip-trigger">Nume</div>
+                    {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
                     <span class="editable-td-span-tooltip">Click pentru a edita!</span>
+                    {% endif %}
                 </th>
                 <th>Produse</th>
                 {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
@@ -31,7 +27,10 @@
             {% for p in producatori %}
                 <tr>
                     <td>{{ ns.i }}</td>
-                    <td contenteditable="true" action="modify" item-attr="nume" item-id="{{ p[0] }}">{{ p[1] }}</td> <!--item-attr - util doar pentru mesaj - vezi js pt contenteditable-->
+                    <td action="modify" item-attr="nume" item-id="{{ p[0] }}" 
+                        {% if current_user.poate(Permisiuni.ADMINISTRARE) %} contenteditable="true" {% endif %}>
+                        {{ p[1] }}
+                    </td> <!--item-attr - util doar pentru mesaj - vezi js pt contenteditable-->
                     <td style="text-align:right; padding-right:10px;">{{ p[2] }}</td>
                     {% if current_user.poate(Permisiuni.ADMINISTRARE) %}
                     <td style="text-align: center;">
@@ -48,6 +47,13 @@
                 {% set ns.i = ns.i + 1 %}
             {% endfor %}
             </table>
+        </div>
+        
+        <div class="container-form-add" >
+            <div onclick="showHide(event)" aria-controls="add-form">Adauga producator &#9658;</div>
+            <div id="add-form" style="display: none;">
+                {{ wtf.quick_form(form) }}
+            </div>
         </div>
     </div>
     

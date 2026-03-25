@@ -1,7 +1,7 @@
 {% extends "base_simplu.html" %}
 
 {% block page_content %}
-<p style="margin-bottom:50px;">Detalii comanda</p>
+<p style="margin-bottom:50px;">Detalii comanda client</p>
 <div style="display:inline-block;">
     <p style="text-align:center; padding-left:10px;margin-bottom:20px;">Comanda: Nr.: <b>{{ info_comanda['id_comanda'] }}</b> / {{ info_comanda['data_comanda'] }} / <b>{{ info_comanda['nume'] }}</b> </p>
     {% set ns = namespace(i=1) %}

@@ -1,0 +1,162 @@
+        <style>
+            /*
+            *
+            * STYLE CSS pentru pagina de prezentare
+            *
+            */
+            body {
+                font: 12pt Verdana, Arial, Georgia, sans-serif;
+            }
+            .prezentare {
+                display: flex;
+            }
+            .navprezentare {
+                width: 180px;
+                float: left;
+                margin-top: 12px;
+                margin-right: 18px;
+            }
+            .navprezentare ul {
+                list-style: none;
+                margin: 12px 0px 0px 0px;
+                padding: 0px;
+            }
+            .navprezentare li {
+                border-bottom: 1px solid #ffffff;
+            }
+
+            .navprezentare a {
+                text-decoration: none;
+            }
+
+            .navprezentare button {
+                margin: 0px;
+                padding: 0px;
+                width: 180px;
+                font-size: 12pt;
+                font-weight: bold;
+                display: block;
+                padding: 3px 0px 3px 3px;
+                /*background-color: #628794;*/
+                background-color:navy;
+                color: #ffffff;
+            }
+            .navprezentare li a:link, .navprezentare li a:visited {
+                font-size: 12pt;
+                font-weight: bold;
+                display: block;
+                padding: 3px 0px 3px 3px;
+                /*background-color: #628794;*/
+                background-color: navy;
+                color: #ffffff;
+            }
+            .navprezentare li a:hover, .navprezentare li a:active {
+                font-size: 12pt;
+                font-weight: bold;
+                display: block;
+                padding: 3px 0px 3px 3px;
+                /*background-color: #c1a02e;*/
+                background-color:lightskyblue;
+                color: #000000;
+            }
+            .navprezentare ul ul {
+                margin: 0px;
+                padding: 0px;
+                border-bottom: 1px solid #ffffff;
+            }
+            .navprezentare ul ul li {
+                border-bottom: none;
+            }
+            .navprezentare ul ul li a:link, .navprezentare ul ul li a:visited {
+                font-size: 10pt;
+                font-weight: bold;
+                display: block;
+                padding: 3px 0px 3px 18px;
+                /*background-color: #628794;*/
+                background-color: navy;
+                color: #ffffff;
+            }
+            .navprezentare ul ul li a:hover, .navprezentare ul ul li a:active {
+                font-size: 10pt;
+                font-weight: bold;
+                display: block;
+                padding: 3px 0px 3px 18px;
+                /*background-color: #c1a02e;*/
+                background-color:lightskyblue;
+                color: #000000;
+            }
+
+            .pannels {
+                width: 820px;
+                float: left;
+            }
+
+            .descriere-artistic {
+                font-family:cursive;
+                font-size:medium;
+            }
+
+
+
+            .pannels ul li a, .pannels ul li span {
+                text-decoration: none;
+                font-weight: bold;
+            }
+            footer{
+                width: 100%;
+                background-color:aliceblue;
+                margin: 20px 0px 20px;
+                text-align:center;
+            }
+
+            .pannels [role="tabpanel"].is-hidden {
+                display: none
+            }
+
+            .manual [role="tab"][aria-selected="true"] {
+                background-color: #71a03e;
+                color: #000000;
+            }
+
+            /*stilizare capitol 2 - navigare etape*/
+            #navigare-poze-c22 {
+                width: 80%;
+                background-color:antiquewhite;
+                vertical-align: middle;
+                display: flex;
+            }
+            /*
+            button {
+                width: 100px;
+                height: 100px;
+            }
+            button */
+            .img-buton-navigare {
+                width: 50px;
+                height: 50px;
+            }
+            button#btn-imaginea-anterioara {
+                /*vertical-align: center;*/
+                color: red;
+                /*height:100px; fara height, butonul se extinde pe verticala si ia dimensiunea div-ului in care este pus */
+                
+            }
+            #div-poza-curenta {
+                border: 1px solid lightgreen;
+                vertical-align: center;
+                text-align:center;
+                flex: auto;
+            }
+            #div-poza-curenta img {
+                width: 600px;
+            }
+
+            button#btn-imaginea-urmatoare {
+                color: blue;
+                /*background-color: blue;*/
+                /*pointer-events: none;*/
+            }
+            #div-poza-curenta [role="img-etapa"][aria-selected="false"] {
+                display: none;
+            }
+        </style>
